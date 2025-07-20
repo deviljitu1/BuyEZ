@@ -1,12 +1,37 @@
-// Update this page (the content is just a fallback if you fail to update the page)
+import { useState } from 'react';
+import { Header } from '@/components/Header';
+import { Hero } from '@/components/Hero';
+import { ProductGrid } from '@/components/ProductGrid';
+import { Cart } from '@/components/Cart';
+import { useCart } from '@/hooks/useCart';
+import { mockProducts } from '@/data/mockProducts';
 
 const Index = () => {
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const { items, addToCart, updateQuantity, removeFromCart, getCartCount } = useCart();
+
   return (
-    <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">Welcome to Your Blank App</h1>
-        <p className="text-xl text-muted-foreground">Start building your amazing project here!</p>
-      </div>
+    <div className="min-h-screen bg-background">
+      <Header 
+        cartCount={getCartCount()} 
+        onCartClick={() => setIsCartOpen(true)} 
+      />
+      
+      <main>
+        <Hero />
+        <ProductGrid 
+          products={mockProducts} 
+          onAddToCart={addToCart} 
+        />
+      </main>
+
+      <Cart
+        isOpen={isCartOpen}
+        onClose={() => setIsCartOpen(false)}
+        items={items}
+        onUpdateQuantity={updateQuantity}
+        onRemoveItem={removeFromCart}
+      />
     </div>
   );
 };
