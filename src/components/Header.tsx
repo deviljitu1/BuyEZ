@@ -23,7 +23,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const categories = [
     { name: 'Grocery', icon: 'https://img.icons8.com/color/48/000000/shopping-basket-2.png', link: '/categories?cat=grocery' },
     { name: 'Mobiles', icon: 'https://img.icons8.com/color/48/000000/smartphone-tablet.png', link: '/categories?cat=mobiles' },
-    { name: 'Fashion', icon: 'https://img.icons8.com/color/48/000000/fashion.png', link: '/categories?cat=fashion', dropdown: ['Men', 'Women', 'Kids', 'Footwear', 'Accessories'] },
+    { name: 'Fashion', icon: 'https://cdn-icons-png.flaticon.com/512/892/892458.png', link: '/categories?cat=fashion', dropdown: ['Men', 'Women', 'Kids', 'Footwear', 'Accessories'] },
     { name: 'Electronics', icon: 'https://img.icons8.com/color/48/000000/laptop.png', link: '/categories?cat=electronics', dropdown: ['Mobiles', 'Laptops', 'Cameras', 'Audio', 'Wearables'] },
     { name: 'Home & Furniture', icon: 'https://img.icons8.com/color/48/000000/sofa.png', link: '/categories?cat=home', dropdown: ['Kitchen', 'Furniture', 'Decor', 'Tools'] },
     { name: 'Appliances', icon: 'https://img.icons8.com/color/48/000000/washing-machine.png', link: '/categories?cat=appliances' },
