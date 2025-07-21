@@ -13,6 +13,11 @@ const Checkout = () => {
   const [step, setStep] = useState(0);
   const { items, getCartTotal } = useCart();
   const navigate = useNavigate();
+  // Coupon state
+  const [coupon, setCoupon] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState('');
+  const [couponError, setCouponError] = useState('');
+  const [discount, setDiscount] = useState(0);
 
   // Address state
   const [addresses, setAddresses] = useState(() => {
@@ -140,6 +145,43 @@ const Checkout = () => {
         return (
           <div className="space-y-4">
             <h2 className="text-xl font-bold mb-2">Payment Option</h2>
+            {/* Coupon Code */}
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
+              <input
+                type="text"
+                placeholder="Enter Coupon Code"
+                value={coupon}
+                onChange={e => setCoupon(e.target.value.toUpperCase())}
+                className="border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary w-full sm:w-48"
+                disabled={!!appliedCoupon}
+              />
+              <button
+                className="px-4 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-glow text-sm font-semibold shadow w-full sm:w-auto"
+                onClick={() => {
+                  if (appliedCoupon) {
+                    setCoupon('');
+                    setAppliedCoupon('');
+                    setDiscount(0);
+                    setCouponError('');
+                    return;
+                  }
+                  if (coupon === 'SAVE10') {
+                    setAppliedCoupon('SAVE10');
+                    setDiscount(0.1);
+                    setCouponError('');
+                  } else {
+                    setCouponError('Invalid coupon code');
+                  }
+                }}
+                type="button"
+              >
+                {appliedCoupon ? 'Remove' : 'Apply'}
+              </button>
+            </div>
+            {appliedCoupon && (
+              <div className="text-success text-sm mb-2">Coupon <span className="font-semibold">{appliedCoupon}</span> applied! 10% off</div>
+            )}
+            {couponError && <div className="text-red-500 text-xs mb-2">{couponError}</div>}
             <div className="space-y-2">
               <label className="flex items-center gap-2">
                 <input type="radio" name="payment" defaultChecked /> Credit/Debit Card
@@ -193,10 +235,16 @@ const Checkout = () => {
           <span>Delivery Charges</span>
           <span className="text-success">FREE</span>
         </div>
+        {discount > 0 && (
+          <div className="flex justify-between mb-2 text-success">
+            <span>Coupon Discount</span>
+            <span>- ${(getCartTotal() * discount).toFixed(2)}</span>
+          </div>
+        )}
         <div className="border-t my-2" />
         <div className="flex justify-between font-bold text-lg">
           <span>Total Amount</span>
-          <span>${getCartTotal().toFixed(2)}</span>
+          <span>${(getCartTotal() * (1 - discount)).toFixed(2)}</span>
         </div>
       </div>
     </div>

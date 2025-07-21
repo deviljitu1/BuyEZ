@@ -16,6 +16,10 @@ const ProductDetail = ({ addToCart }: ProductDetailProps) => {
   const { items, updateQuantity } = useCart();
   const [zoomed, setZoomed] = useState(false);
   const [showSpecs, setShowSpecs] = useState(false);
+  const [pincode, setPincode] = useState('');
+  const [enteredPincode, setEnteredPincode] = useState('');
+  const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
+  const [pincodeError, setPincodeError] = useState('');
   const product = mockProducts.find(p => p.id === id);
   const otherProducts = mockProducts.filter(p => p.id !== id);
   const cartItem = items.find(item => item.id === id);
@@ -95,6 +99,45 @@ const ProductDetail = ({ addToCart }: ProductDetailProps) => {
                   >
                     +
                   </button>
+                </div>
+              )}
+            </div>
+            {/* Pincode & Delivery Date */}
+            <div className="mb-4 flex flex-col sm:flex-row sm:items-center gap-2">
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  inputMode="numeric"
+                  pattern="[0-9]*"
+                  maxLength={6}
+                  placeholder="Enter Pincode"
+                  value={pincode}
+                  onChange={e => setPincode(e.target.value.replace(/[^0-9]/g, ''))}
+                  className="border rounded px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary w-32"
+                />
+                <button
+                  className="px-3 py-2 bg-primary text-primary-foreground rounded hover:bg-primary-glow text-sm font-semibold shadow"
+                  onClick={() => {
+                    if (!/^\d{6}$/.test(pincode)) {
+                      setPincodeError('Enter a valid 6-digit pincode');
+                      return;
+                    }
+                    setEnteredPincode(pincode);
+                    setPincodeError('');
+                    // Random delivery date 3-7 days from now
+                    const days = Math.floor(Math.random() * 5) + 3;
+                    const date = new Date();
+                    date.setDate(date.getDate() + days);
+                    setDeliveryDate(date.toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' }));
+                  }}
+                >
+                  {enteredPincode ? 'Change' : 'Check'}
+                </button>
+              </div>
+              {pincodeError && <div className="text-red-500 text-xs mt-1">{pincodeError}</div>}
+              {enteredPincode && deliveryDate && (
+                <div className="text-success text-sm mt-1 sm:mt-0">
+                  Delivery to <span className="font-semibold">{enteredPincode}</span> by <span className="font-semibold">{deliveryDate}</span>
                 </div>
               )}
             </div>

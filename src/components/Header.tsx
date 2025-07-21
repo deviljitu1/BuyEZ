@@ -15,10 +15,33 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [dropdownPos, setDropdownPos] = useState<{ left: number, top: number } | null>(null);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const userButtonRef = useRef<HTMLButtonElement>(null);
 
   // Helper to detect mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+  // Mutually exclusive openers
+  const openMenu = () => {
+    setIsMenuOpen(true);
+    setUserDropdownOpen(false);
+    setMobileSearchOpen(false);
+  };
+  const openUserDropdown = () => {
+    setUserDropdownOpen(true);
+    setIsMenuOpen(false);
+    setMobileSearchOpen(false);
+  };
+  const openMobileSearch = () => {
+    setMobileSearchOpen(true);
+    setIsMenuOpen(false);
+    setUserDropdownOpen(false);
+  };
+  const closeAll = () => {
+    setIsMenuOpen(false);
+    setUserDropdownOpen(false);
+    setMobileSearchOpen(false);
+  };
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive
@@ -79,14 +102,28 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
         {/* Actions */}
         <div className="flex items-center space-x-4">
           {/* Mobile Search */}
-          <Button variant="ghost" size="icon" className="lg:hidden">
-            <Search className="w-5 h-5" />
-          </Button>
+          <div className="lg:hidden relative">
+            <Button variant="ghost" size="icon" onClick={openMobileSearch}>
+              <Search className="w-5 h-5" />
+            </Button>
+            {mobileSearchOpen && (
+              <div className="absolute left-0 top-12 w-[90vw] max-w-xs bg-white shadow-lg rounded-lg p-3 z-[9999] flex items-center gap-2 animate-fade-in">
+                <Input
+                  autoFocus
+                  placeholder="Search products..."
+                  className="flex-1 bg-muted/50 border-0 focus:bg-background transition-colors"
+                />
+                <Button variant="ghost" size="icon" onClick={closeAll}>
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+            )}
+          </div>
 
           {/* User Dropdown (hover on desktop, click on mobile) */}
           <div
             className="relative"
-            onMouseEnter={() => { if (!isMobile) setUserDropdownOpen(true); }}
+            onMouseEnter={() => { if (!isMobile) openUserDropdown(); }}
             onMouseLeave={() => { if (!isMobile) setUserDropdownOpen(false); }}
           >
             <Button
@@ -94,14 +131,16 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               variant="ghost"
               size="icon"
               aria-label="Login"
-              onClick={() => { if (isMobile) setUserDropdownOpen((open) => !open); }}
+              onClick={() => { if (isMobile) userDropdownOpen ? setUserDropdownOpen(false) : openUserDropdown(); }}
               className={userDropdownOpen ? 'bg-primary/10' : ''}
+              style={{ zIndex: 10000, position: 'relative' }}
             >
               <User className="w-5 h-5" />
             </Button>
             {userDropdownOpen && (
               <div
-                className="absolute right-0 mt-2 w-64 bg-white shadow-xl rounded-xl border z-[9999] animate-fade-in"
+                className="absolute right-0 top-12 w-64 bg-white shadow-xl rounded-xl border z-[9999] animate-fade-in"
+                style={{ minWidth: 220 }}
               >
                 <div className="flex items-center justify-between px-4 py-3 border-b">
                   <span className="font-medium text-base">New customer?</span>
@@ -146,7 +185,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             variant="ghost"
             size="icon"
             className="md:hidden"
-            onClick={() => setIsMenuOpen(!isMenuOpen)}
+            onClick={() => isMenuOpen ? closeAll() : openMenu()}
           >
             {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </Button>
@@ -156,19 +195,29 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t bg-background/95 backdrop-blur">
-          <nav className="container mx-auto px-4 py-4 space-y-4">
-              <NavLink to="/" className={navLinkClass} end>
-              Home
-              </NavLink>
-              <NavLink to="/products" className={navLinkClass}>
-              Products
-              </NavLink>
-              <NavLink to="/categories" className={navLinkClass}>
-              Categories
-              </NavLink>
-              <NavLink to="/about" className={navLinkClass}>
-              About
-              </NavLink>
+          <nav className="container mx-auto px-4 py-4">
+            <ul className="flex flex-col gap-2">
+              <li>
+                <NavLink to="/" className={navLinkClass} end>
+                  Home
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/products" className={navLinkClass}>
+                  Products
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/categories" className={navLinkClass}>
+                  Categories
+                </NavLink>
+              </li>
+              <li>
+                <NavLink to="/about" className={navLinkClass}>
+                  About
+                </NavLink>
+              </li>
+            </ul>
             {/* Mobile Search */}
             <div className="pt-4">
               <div className="relative">
