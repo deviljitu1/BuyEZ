@@ -33,45 +33,43 @@ const slides = [
 
 export const Hero = () => {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [sliderRef, instanceRef] = useKeenSlider({
+  const slideInterval = 4000; // Duration for each slide
+  const [progress, setProgress] = useState(0);
+
+  // Initialize slider
+  const [sliderRef, instanceRef] = useKeenSlider<HTMLDivElement>({
     loop: true,
-    slides: { perView: 1 },
-    renderMode: 'performance',
+    renderMode: "performance",
     drag: true,
-    created: (s) => {
-      s.moveToIdx(0, true);
+    slides: {
+      origin: "center",
+      perView: 1,
+      spacing: 0,
     },
-    slideChanged: (s) => {
-      setCurrentSlide(s.track.details.rel);
-    },
-    breakpoints: {
-      '(min-width: 768px)': { slides: { perView: 1 } },
+    initial: 0,
+    slideChanged(slider) {
+      setCurrentSlide(slider.track.details.rel);
     },
   });
 
   const progressRef = useRef<HTMLDivElement[]>([]);
-  const slideInterval = 4000; // ms, adjust if your auto-slide interval is different
 
-  // Autoplay effect
+  // Custom slide control with progress animation
   useEffect(() => {
-    if (!instanceRef.current) return;
-    let timeout: NodeJS.Timeout;
-    let mouseOver = false;
-    const slider = instanceRef.current;
-    function next() {
-      if (mouseOver) return;
-      slider.next();
-      timeout = setTimeout(next, 3500);
-    }
-    slider.container.addEventListener('mouseover', () => { mouseOver = true; clearTimeout(timeout); });
-    slider.container.addEventListener('mouseout', () => { mouseOver = false; timeout = setTimeout(next, 3500); });
-    timeout = setTimeout(next, 3500);
+    setProgress(0);
+    const timeout = setTimeout(() => {
+      setProgress(100);
+    }, 50); // allow DOM to paint before animating
+    const slideTimeout = setTimeout(() => {
+      if (instanceRef.current) {
+        instanceRef.current.next();
+      }
+    }, slideInterval);
     return () => {
       clearTimeout(timeout);
-      slider.container.removeEventListener('mouseover', () => { mouseOver = true; });
-      slider.container.removeEventListener('mouseout', () => { mouseOver = false; });
+      clearTimeout(slideTimeout);
     };
-  }, [instanceRef]);
+  }, [currentSlide]);
 
   // Arrow navigation handlers
   const goToPrev = () => instanceRef.current?.prev();
@@ -121,9 +119,11 @@ export const Hero = () => {
                       className="relative h-1.5 w-8 rounded-full bg-muted overflow-hidden"
                     >
                       <div
-                        ref={el => progressRef.current[idx] = el!}
-                        className={`absolute left-0 top-0 h-full rounded-full transition-all duration-0 ${currentSlide === idx ? 'bg-black' : 'bg-transparent'}`}
-                        style={currentSlide === idx ? { width: '100%', transition: `width ${slideInterval}ms linear` } : { width: 0, transition: 'none' }}
+                        className={`absolute left-0 top-0 h-full rounded-full bg-black transition-all duration-[${slideInterval}ms]`}
+                        style={{
+                          width: currentSlide === idx ? `${progress}%` : '0%',
+                          transition: currentSlide === idx ? `width ${slideInterval}ms linear` : 'none',
+                        }}
                       />
                     </span>
                   ))}

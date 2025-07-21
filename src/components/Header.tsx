@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { NavLink, useNavigate } from 'react-router-dom';
 import { mockProducts } from '@/data/mockProducts';
 import React from 'react';
+import { createPortal } from 'react-dom';
 
 interface HeaderProps {
   cartCount: number;
@@ -32,31 +33,62 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
-  const mostSearched = ['iPhone', 'Laptop', 'Shoes', 'Headphones', 'T-shirt', 'Smart Watch'];
+  const [suggestions, setSuggestions] = useState<{name: string, category: string}[]>([]);
+  const mostSearched = ['iPhone 14 Pro', 'MacBook Pro', 'AirPods Pro', 'Apple Watch', 'iPad Pro', 'iMac'];
   const navigate = useNavigate();
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
-  // Load recent searches from localStorage
+  // Load recent searches from localStorage on mount
   useEffect(() => {
-    const saved = localStorage.getItem('buyez-recent-searches');
-    if (saved) setRecentSearches(JSON.parse(saved));
+    try {
+      const saved = localStorage.getItem('recent-searches');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          setRecentSearches(parsed);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading recent searches:', error);
+    }
   }, []);
 
   // Add to recent searches
   const addRecentSearch = (term: string) => {
     if (!term.trim()) return;
-    let updated = [term, ...recentSearches.filter(s => s !== term)];
-    if (updated.length > 8) updated = updated.slice(0, 8);
-    setRecentSearches(updated);
-    localStorage.setItem('buyez-recent-searches', JSON.stringify(updated));
+    try {
+      const newSearches = [
+        term,
+        ...recentSearches.filter(s => s.toLowerCase() !== term.toLowerCase())
+      ].slice(0, 5); // Keep only last 5 searches
+      setRecentSearches(newSearches);
+      localStorage.setItem('recent-searches', JSON.stringify(newSearches));
+    } catch (error) {
+      console.error('Error saving recent searches:', error);
+    }
   };
 
-  // Handle search submit (for demo, just add to recent)
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!searchValue.trim()) return;
     addRecentSearch(searchValue);
     setShowSearchDropdown(false);
     navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+    setSearchValue(''); // Clear search after submission
+  };
+
+  const handleSearchFocus = () => {
+    setShowSearchDropdown(true);
+  };
+
+  const handleSearchBlur = (e: React.FocusEvent) => {
+    // Delay hiding dropdown to allow clicking suggestions
+    setTimeout(() => {
+      const relatedTarget = e.relatedTarget as HTMLElement;
+      if (!relatedTarget?.closest('.search-dropdown')) {
+        setShowSearchDropdown(false);
+      }
+    }, 150);
   };
 
   const handleSearchItemClick = (term: string) => {
@@ -64,11 +96,12 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
     setShowSearchDropdown(false);
     addRecentSearch(term);
     navigate(`/search?q=${encodeURIComponent(term)}`);
+    setSearchValue(''); // Clear search after clicking item
   };
 
   const clearRecentSearches = () => {
     setRecentSearches([]);
-    localStorage.removeItem('buyez-recent-searches');
+    localStorage.removeItem('recent-searches');
   };
 
   // Voice search handler
@@ -104,20 +137,17 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   };
 
   // Live suggestions as user types
-  const [suggestions, setSuggestions] = useState<{name: string, category: string}[]>([]);
-
   useEffect(() => {
     if (searchValue.trim()) {
       const val = searchValue.trim().toLowerCase();
-      setSuggestions(
-        mockProducts
-          .filter(p =>
-            p.name.toLowerCase().includes(val) ||
-            (p.category && p.category.toLowerCase().includes(val))
-          )
-          .slice(0, 6)
-          .map(p => ({ name: p.name, category: p.category }))
-      );
+      const filtered = mockProducts
+        .filter(p =>
+          p.name.toLowerCase().includes(val) ||
+          (p.category && p.category.toLowerCase().includes(val))
+        )
+        .slice(0, 6)
+        .map(p => ({ name: p.name, category: p.category || '' }));
+      setSuggestions(filtered);
     } else {
       setSuggestions([]);
     }
@@ -208,14 +238,108 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
         </nav>
 
         {/* Search Bar - Desktop */}
-        <div className="hidden lg:flex items-center space-x-2 flex-1 max-w-sm mx-8">
-          <div className="relative w-full">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
-            <Input
-              placeholder="Search products..."
-              className="pl-10 bg-muted/50 border-0 focus:bg-background transition-colors"
+        <div className="hidden sm:block relative w-full max-w-md">
+          <form onSubmit={handleSearchSubmit} className="flex items-center relative">
+            <Search className="w-5 h-5 text-muted-foreground absolute left-3" />
+            <input
+              type="text"
+              placeholder="Search for products..."
+              className="w-full h-10 pl-10 pr-4 rounded-md border border-input bg-background text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              value={searchValue}
+              onChange={e => setSearchValue(e.target.value)}
+              onFocus={handleSearchFocus}
+              onBlur={handleSearchBlur}
+              ref={searchInputRef}
             />
-          </div>
+          </form>
+          {/* Desktop Search Dropdown using Portal */}
+          {showSearchDropdown && typeof window !== 'undefined' && createPortal(
+            (() => {
+              const input = searchInputRef.current;
+              let style = {};
+              if (input) {
+                const rect = input.getBoundingClientRect();
+                style = {
+                  position: 'absolute',
+                  left: rect.left + window.scrollX,
+                  top: rect.bottom + window.scrollY,
+                  width: rect.width,
+                  zIndex: 99999
+                };
+              }
+              return (
+                <div className="search-dropdown bg-white shadow-lg rounded-xl p-4 animate-fade-in text-left max-h-[80vh] overflow-y-auto border border-border" style={style}>
+                  {/* Live Suggestions */}
+                  {searchValue.trim() && suggestions.length > 0 && (
+                    <div className="mb-3">
+                      <div className="text-sm font-semibold text-foreground mb-2">Product Suggestions</div>
+                      <div className="flex flex-col gap-1">
+                        {suggestions.map((s, i) => (
+                          <button
+                            key={i}
+                            className="flex items-center px-4 py-3 rounded-lg hover:bg-muted transition-colors text-left"
+                            type="button"
+                            onMouseDown={() => handleSearchItemClick(s.name)}
+                          >
+                            <span className="font-medium text-sm">{highlightMatch(s.name, searchValue)}</span>
+                            {s.category && (
+                              <span className="text-xs text-muted-foreground ml-2">in {highlightMatch(s.category, searchValue)}</span>
+                            )}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Recent Searches */}
+                  {!searchValue.trim() && recentSearches.length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="text-sm font-semibold text-foreground">Recent Searches</div>
+                        <button
+                          className="text-xs text-primary hover:text-primary/80 hover:underline bg-transparent"
+                          type="button"
+                          onMouseDown={clearRecentSearches}
+                        >
+                          Clear All
+                        </button>
+                      </div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {recentSearches.map((s, i) => (
+                          <button
+                            key={i}
+                            className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
+                            type="button"
+                            onMouseDown={() => handleSearchItemClick(s)}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                  {/* Most Searched */}
+                  {!searchValue.trim() && (
+                    <div>
+                      <div className="text-sm font-semibold text-foreground mb-2">Popular Searches</div>
+                      <div className="flex flex-wrap gap-2 mt-2">
+                        {mostSearched.map((s, i) => (
+                          <button
+                            key={i}
+                            className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
+                            type="button"
+                            onMouseDown={() => handleSearchItemClick(s)}
+                          >
+                            {s}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })(),
+            document.body
+          )}
         </div>
 
         {/* Actions */}
@@ -318,7 +442,24 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
             onFocus={() => setShowSearchDropdown(true)}
-            onBlur={() => setTimeout(() => setShowSearchDropdown(false), 150)}
+            onBlur={e => {
+              // Only close if focus moves outside the dropdown
+              setTimeout(() => {
+                if (!e.relatedTarget || !e.relatedTarget.closest('.search-dropdown')) {
+                  setShowSearchDropdown(false);
+                }
+              }, 150);
+            }}
+            onKeyDown={e => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                if (searchValue.trim()) {
+                  addRecentSearch(searchValue);
+                  setShowSearchDropdown(false);
+                  navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+                }
+              }
+            }}
           />
           <button className="ml-2 p-1 rounded-full hover:bg-primary/10 transition" aria-label="Camera or QR" type="button" onClick={handleCameraClick}>
             <Camera className="w-5 h-5 text-muted-foreground" />
@@ -336,7 +477,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
           </button>
           {/* Search Dropdown */}
           {showSearchDropdown && (
-            <div className="absolute left-0 top-12 w-full bg-white shadow-lg rounded-xl p-3 z-[9999] animate-fade-in text-left max-h-96 overflow-y-auto">
+            <div className="search-dropdown absolute left-0 top-12 w-full bg-white shadow-lg rounded-xl p-3 z-[9999] animate-fade-in text-left max-h-96 overflow-y-auto">
               {/* Live Suggestions */}
               {searchValue.trim() && suggestions.length > 0 && (
                 <div className="mb-3">
