@@ -2,9 +2,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
+import { X, Plus, Minus, ShoppingBag, Trash2 } from 'lucide-react';
 import { CartItem } from '@/types/product';
 import { useNavigate } from 'react-router-dom';
+import { createPortal } from 'react-dom';
 
 interface CartProps {
   isOpen: boolean;
@@ -31,143 +32,100 @@ export const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }:
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 overflow-hidden">
-      {/* Backdrop */}
-      <div 
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-      
-      {/* Cart Panel */}
-      <div className="absolute right-0 top-0 h-full w-full max-w-md bg-background shadow-2xl transform transition-transform duration-300 ease-in-out">
-        <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-4 border-b">
-            <div className="flex items-center space-x-2">
-              <ShoppingBag className="w-5 h-5 text-primary" />
-              <h2 className="text-lg font-semibold">Shopping Cart</h2>
-              {totalItems > 0 && (
-                <Badge variant="secondary" className="bg-primary text-primary-foreground">
-                  {totalItems}
-                </Badge>
-              )}
-            </div>
-            <Button variant="ghost" size="icon" onClick={onClose}>
-              <X className="w-5 h-5" />
-            </Button>
-          </div>
-
-          {/* Cart Items */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4">
-            {items.length === 0 ? (
-              <div className="text-center py-8">
-                <ShoppingBag className="w-16 h-16 text-muted-foreground mx-auto mb-4 opacity-50" />
-                <h3 className="text-lg font-medium text-muted-foreground mb-2">Your cart is empty</h3>
-                <p className="text-sm text-muted-foreground mb-4">Add some products to get started</p>
-                <Button onClick={onClose} variant="outline">
-                  Continue Shopping
+    <>
+      {isOpen && createPortal(
+        <div 
+          className="fixed inset-0 bg-background/80 backdrop-blur-sm"
+          style={{ zIndex: 999999 }}
+        >
+          <div 
+            className="fixed inset-y-0 right-0 w-full sm:w-[400px] bg-background shadow-lg p-6 border-l"
+            style={{ zIndex: 999999 }}
+          >
+            <div className="flex flex-col h-full">
+              {/* Header */}
+              <div className="flex items-center justify-between mb-6">
+                <h2 className="text-2xl font-semibold">Shopping Cart</h2>
+                <Button variant="ghost" size="icon" onClick={onClose}>
+                  <X className="w-6 h-6" />
                 </Button>
               </div>
-            ) : (
-              items.map((item) => (
-                <Card key={item.id} className="border-0 bg-muted/50">
-                  <CardContent className="p-4">
-                    <div className="flex space-x-3">
-                      <img
-                        src={item.image}
-                        alt={item.name}
-                        className="w-16 h-16 object-cover rounded-lg"
-                      />
-                      <div className="flex-1 space-y-2">
-                        <div className="flex items-start justify-between">
-                          <h4 className="font-medium text-sm leading-tight">{item.name}</h4>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-6 w-6 text-muted-foreground hover:text-destructive"
-                            onClick={() => onRemoveItem(item.id)}
-                          >
-                            <X className="w-4 h-4" />
-                          </Button>
-                        </div>
-                        
-                        <div className="text-xs text-muted-foreground">{item.category}</div>
-                        
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center space-x-2">
-                            <Button
-                              variant="outline"
+
+              {/* Cart Items */}
+              {items.length === 0 ? (
+                <div className="flex-1 flex flex-col items-center justify-center gap-4">
+                  <ShoppingBag className="w-16 h-16 text-muted-foreground" />
+                  <p className="text-xl font-medium">Your cart is empty</p>
+                  <p className="text-muted-foreground">Add some products to get started</p>
+                  <Button onClick={() => { onClose(); navigate('/'); }}>
+                    Continue Shopping
+                  </Button>
+                </div>
+              ) : (
+                <>
+                  <div className="flex-1 overflow-y-auto">
+                    {items.map(item => (
+                      <div key={item.id} className="flex gap-4 py-4 border-b">
+                        <img 
+                          src={item.image} 
+                          alt={item.name}
+                          className="w-20 h-20 object-cover rounded-lg"
+                        />
+                        <div className="flex-1">
+                          <h3 className="font-medium">{item.name}</h3>
+                          <p className="text-muted-foreground">${item.price}</p>
+                          <div className="flex items-center gap-2 mt-2">
+                            <Button 
+                              variant="outline" 
                               size="icon"
-                              className="h-6 w-6"
                               onClick={() => onUpdateQuantity(item.id, Math.max(0, item.quantity - 1))}
                             >
-                              <Minus className="w-3 h-3" />
+                              <Minus className="w-4 h-4" />
                             </Button>
-                            <span className="text-sm font-medium w-8 text-center">{item.quantity}</span>
-                            <Button
-                              variant="outline"
+                            <span>{item.quantity}</span>
+                            <Button 
+                              variant="outline" 
                               size="icon"
-                              className="h-6 w-6"
                               onClick={() => onUpdateQuantity(item.id, item.quantity + 1)}
                             >
-                              <Plus className="w-3 h-3" />
+                              <Plus className="w-4 h-4" />
                             </Button>
                           </div>
-                          <div className="text-sm font-semibold">
-                            ${(item.price * item.quantity).toFixed(2)}
-                          </div>
                         </div>
+                        <Button 
+                          variant="ghost" 
+                          size="icon"
+                          onClick={() => onRemoveItem(item.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
                       </div>
+                    ))}
+                  </div>
+                  <div className="border-t pt-4 mt-4">
+                    <div className="flex justify-between mb-4">
+                      <span className="font-medium">Total</span>
+                      <span className="font-medium">
+                        ${items.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2)}
+                      </span>
                     </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
-
-          {/* Footer */}
-          {items.length > 0 && (
-            <div className="border-t p-4 space-y-4">
-              {/* Subtotal */}
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Subtotal ({totalItems} items)</span>
-                <span className="font-semibold">${total.toFixed(2)}</span>
-              </div>
-              
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Shipping</span>
-                <span className="text-sm font-medium text-success">FREE</span>
-              </div>
-              
-              <div className="border-t pt-4">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-lg font-semibold">Total</span>
-                  <span className="text-lg font-bold text-primary">${total.toFixed(2)}</span>
-                </div>
-                
-                <Button
-                  className="w-full bg-primary hover:bg-primary-glow text-primary-foreground font-semibold py-3"
-                  onClick={() => {
-                    onClose();
-                    setTimeout(() => navigate('/checkout'), 300);
-                  }}
-                  disabled={isCheckingOut}
-                >
-                  {isCheckingOut ? 'Processing...' : 'Checkout'}
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="w-full mt-2"
-                  onClick={onClose}
-                >
-                  Continue Shopping
-                </Button>
-              </div>
+                    <Button 
+                      className="w-full"
+                      onClick={() => {
+                        onClose();
+                        navigate('/checkout');
+                      }}
+                    >
+                      Checkout
+                    </Button>
+                  </div>
+                </>
+              )}
             </div>
-          )}
-        </div>
-      </div>
-    </div>
+          </div>
+        </div>,
+        document.body
+      )}
+    </>
   );
 };

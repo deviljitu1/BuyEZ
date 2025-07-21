@@ -225,10 +225,10 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
 
   return (
     <>
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full overflow-x-hidden">
+    <header className="sticky top-0 z-[999999] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2" style={{ position: 'relative', zIndex: 999999 }}>
           <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-sm">SE</span>
           </div>
@@ -236,7 +236,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
         </div>
 
         {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center space-x-8">
+        <nav className="hidden md:flex items-center space-x-8" style={{ position: 'relative', zIndex: 999999 }}>
             <NavLink to="/" className={navLinkClass} end>
             Home
             </NavLink>
@@ -268,98 +268,202 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
           </form>
           {/* Desktop Search Dropdown using Portal */}
           {showSearchDropdown && !isMobile && typeof window !== 'undefined' && createPortal(
-            (() => {
-              const input = searchInputRef.current;
-              let style = {};
-              if (input) {
-                const rect = input.getBoundingClientRect();
-                style = {
-                  position: 'absolute',
-                  left: rect.left + window.scrollX,
-                  top: rect.bottom + window.scrollY,
-                  width: rect.width,
-                  zIndex: 99999
-                };
-              }
-              return (
-                <div className="search-dropdown bg-white shadow-lg rounded-xl p-4 animate-fade-in text-left max-h-[80vh] overflow-y-auto border border-border" style={style}>
-                  {/* Live Suggestions */}
-                  {searchValue.trim() && suggestions.length > 0 && (
-                    <div className="mb-3">
-                      <div className="text-sm font-semibold text-foreground mb-2">Product Suggestions</div>
-                      <div className="flex flex-col gap-1">
-                        {suggestions.map((s, i) => (
-                          <button
-                            key={i}
-                            className="flex items-center px-4 py-3 rounded-lg hover:bg-muted transition-colors text-left"
-                            type="button"
-                            onMouseDown={() => handleSearchItemClick(s.name)}
-                          >
-                            <span className="font-medium text-sm">{highlightMatch(s.name, searchValue)}</span>
-                            {s.category && (
-                              <span className="text-xs text-muted-foreground ml-2">in {highlightMatch(s.category, searchValue)}</span>
-                            )}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {/* Recent Searches */}
-                  {!searchValue.trim() && recentSearches.length > 0 && (
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between mb-2">
-                        <div className="text-sm font-semibold text-foreground">Recent Searches</div>
-                        <button
-                          className="text-xs text-primary hover:text-primary/80 hover:underline bg-transparent"
-                          type="button"
-                          onMouseDown={clearRecentSearches}
-                        >
-                          Clear All
-                        </button>
-                      </div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {recentSearches.map((s, i) => (
-                          <button
-                            key={i}
-                            className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
-                            type="button"
-                            onMouseDown={() => handleSearchItemClick(s)}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                  {/* Most Searched */}
-                  {!searchValue.trim() && (
-                    <div>
-                      <div className="text-sm font-semibold text-foreground mb-2">Popular Searches</div>
-                      <div className="flex flex-wrap gap-2 mt-2">
-                        {mostSearched.map((s, i) => (
-                          <button
-                            key={i}
-                            className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
-                            type="button"
-                            onMouseDown={() => handleSearchItemClick(s)}
-                          >
-                            {s}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+            <div 
+              className="fixed bg-white shadow-lg rounded-xl p-4 animate-fade-in text-left max-h-[80vh] overflow-y-auto border border-border"
+              style={{
+                zIndex: 999999,
+                position: 'fixed',
+                left: searchInputRef.current?.getBoundingClientRect().left,
+                top: searchInputRef.current?.getBoundingClientRect().bottom,
+                width: searchInputRef.current?.getBoundingClientRect().width
+              }}
+            >
+              {/* Live Suggestions */}
+              {searchValue.trim() && suggestions.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-sm font-semibold text-foreground mb-2">Product Suggestions</div>
+                  <div className="flex flex-col gap-1">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        className="flex items-center px-4 py-3 rounded-lg hover:bg-muted transition-colors text-left"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s.name)}
+                      >
+                        <span className="font-medium text-sm">{highlightMatch(s.name, searchValue)}</span>
+                        {s.category && (
+                          <span className="text-xs text-muted-foreground ml-2">in {highlightMatch(s.category, searchValue)}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              );
-            })(),
+              )}
+              {/* Recent Searches */}
+              {!searchValue.trim() && recentSearches.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold text-foreground">Recent Searches</div>
+                    <button
+                      className="text-xs text-primary hover:text-primary/80 hover:underline bg-transparent"
+                      type="button"
+                      onMouseDown={clearRecentSearches}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {recentSearches.map((s, i) => (
+                      <button
+                        key={i}
+                        className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Most Searched */}
+              {!searchValue.trim() && (
+                <div>
+                  <div className="text-sm font-semibold text-foreground mb-2">Popular Searches</div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {mostSearched.map((s, i) => (
+                      <button
+                        key={i}
+                        className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>,
+            document.body
+          )}
+        </div>
+
+        {/* Mobile Search Bar */}
+        <div className="block sm:hidden w-full px-2 py-2 bg-background relative">
+          <form onSubmit={handleSearchSubmit} className="flex items-center relative">
+            <Search className="w-5 h-5 text-muted-foreground mr-2" />
+            <input
+              type="text"
+              placeholder="Search for products, brands and more..."
+              className="flex-1 bg-transparent border-0 outline-none text-base placeholder:text-muted-foreground"
+              value={searchValue}
+              onChange={e => setSearchValue(e.target.value)}
+              onFocus={handleSearchFocus}
+              onBlur={handleSearchBlur}
+              ref={mobileSearchInputRef}
+            />
+            <button className="ml-2 p-1 rounded-full hover:bg-primary/10 transition" aria-label="Camera or QR" type="button" onClick={handleCameraClick}>
+              <Camera className="w-5 h-5 text-muted-foreground" />
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                capture="environment"
+                className="hidden"
+                onChange={handleFileChange}
+              />
+            </button>
+            <button className="ml-1 p-1 rounded-full hover:bg-primary/10 transition" aria-label="Voice Search" type="button" onClick={handleVoiceSearch}>
+              <Mic className="w-5 h-5 text-muted-foreground" />
+            </button>
+          </form>
+          {/* Mobile Search Dropdown Portal */}
+          {showSearchDropdown && isMobile && typeof window !== 'undefined' && createPortal(
+            <div 
+              className="fixed bg-white shadow-lg p-4 animate-fade-in text-left border-t border-border w-full"
+              style={{
+                zIndex: 999999,
+                top: mobileSearchInputRef.current?.getBoundingClientRect().bottom,
+                maxHeight: `calc(100vh - ${mobileSearchInputRef.current?.getBoundingClientRect().bottom}px)`,
+                overflowY: 'auto'
+              }}
+            >
+              {/* Live Suggestions */}
+              {searchValue.trim() && suggestions.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-sm font-semibold text-foreground mb-2">Product Suggestions</div>
+                  <div className="flex flex-col gap-1">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        className="flex items-center px-4 py-3 rounded-lg hover:bg-muted transition-colors text-left"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s.name)}
+                      >
+                        <span className="font-medium text-sm">{highlightMatch(s.name, searchValue)}</span>
+                        {s.category && (
+                          <span className="text-xs text-muted-foreground ml-2">in {highlightMatch(s.category, searchValue)}</span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Recent Searches */}
+              {!searchValue.trim() && recentSearches.length > 0 && (
+                <div className="mb-4">
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="text-sm font-semibold text-foreground">Recent Searches</div>
+                    <button
+                      className="text-xs text-primary hover:text-primary/80 hover:underline bg-transparent"
+                      type="button"
+                      onMouseDown={clearRecentSearches}
+                    >
+                      Clear All
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {recentSearches.map((s, i) => (
+                      <button
+                        key={i}
+                        className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Most Searched */}
+              {!searchValue.trim() && (
+                <div>
+                  <div className="text-sm font-semibold text-foreground mb-2">Popular Searches</div>
+                  <div className="flex flex-wrap gap-2 mt-2">
+                    {mostSearched.map((s, i) => (
+                      <button
+                        key={i}
+                        className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>,
             document.body
           )}
         </div>
 
         {/* Actions */}
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-2" style={{ position: 'relative', zIndex: 999999 }}>
           {/* Language Select: only show on sm and up */}
-          <div className="relative hidden sm:block">
+          <div className="relative hidden sm:block" style={{ position: 'relative', zIndex: 999999 }}>
             <select
               value={language}
               onChange={e => setLanguage(e.target.value)}
@@ -378,6 +482,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             className="relative"
             onMouseEnter={() => { if (!isMobile) openUserDropdown(); }}
             onMouseLeave={() => { if (!isMobile) setUserDropdownOpen(false); }}
+            style={{ position: 'relative', zIndex: 999999 }}
           >
             <Button
               ref={userButtonRef}
@@ -386,14 +491,19 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               aria-label="Login"
               onClick={() => { if (isMobile) userDropdownOpen ? setUserDropdownOpen(false) : openUserDropdown(); }}
               className={userDropdownOpen ? 'bg-primary/10' : ''}
-              style={{ zIndex: 10000, position: 'relative' }}
             >
               <User className="w-5 h-5" />
             </Button>
-            {userDropdownOpen && (
+            {userDropdownOpen && createPortal(
               <div
-                className="absolute right-0 top-12 w-64 bg-white shadow-xl rounded-xl border z-[9999] animate-fade-in"
-                style={{ minWidth: 220 }}
+                className="fixed bg-white shadow-xl rounded-xl border animate-fade-in"
+                style={{
+                  minWidth: 220,
+                  zIndex: 999999,
+                  right: '1rem',
+                  top: '4rem',
+                  width: '16rem'
+                }}
               >
                 <div className="flex items-center justify-between px-4 py-3 border-b">
                   <span className="font-medium text-base">New customer?</span>
@@ -416,32 +526,52 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                     <Gift className="w-5 h-5 mr-3" /> Gift Cards
                   </a>
                 </div>
-              </div>
+              </div>,
+              document.body
             )}
           </div>
 
           {/* Cart */}
-          <Button variant="ghost" size="icon" onClick={onCartClick} className="relative">
-            <ShoppingCart className="w-5 h-5" />
-            {cartCount > 0 && (
-              <Badge 
-                variant="secondary" 
-                className="absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center bg-primary text-primary-foreground text-xs"
+          <div style={{ position: 'relative' }}>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={onCartClick} 
+              className="relative"
+            >
+              <ShoppingCart className="w-5 h-5" />
+            </Button>
+            {cartCount > 0 && createPortal(
+              <div 
+                className="fixed"
+                style={{
+                  zIndex: 999999,
+                  right: '3.5rem',
+                  top: '0.5rem'
+                }}
               >
-                {cartCount}
-              </Badge>
+                <Badge 
+                  variant="secondary" 
+                  className="w-5 h-5 p-0 flex items-center justify-center bg-primary text-primary-foreground text-xs"
+                >
+                  {cartCount}
+                </Badge>
+              </div>,
+              document.body
             )}
-          </Button>
+          </div>
 
           {/* Mobile Menu Toggle */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden"
-            onClick={() => isMenuOpen ? closeAll() : openMenu()}
-          >
-            {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </Button>
+          <div style={{ position: 'relative', zIndex: 999999 }}>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="md:hidden"
+              onClick={() => isMenuOpen ? closeAll() : openMenu()}
+            >
+              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            </Button>
+          </div>
         </div>
       </div>
 
@@ -486,7 +616,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                 left: '0',
                 top: rect.bottom + window.scrollY,
                 width: '100%',
-                zIndex: 99999,
+                zIndex: 100001,
                 maxHeight: `calc(100vh - ${rect.bottom}px)`,
                 overflowY: 'auto'
               };
@@ -610,7 +740,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
       )}
     </header>
       {/* Category Bar */}
-      <nav className="w-full bg-white shadow-sm border-b">
+      <nav className="w-full bg-white shadow-sm border-b" style={{ position: 'relative', zIndex: 999990 }}>
         <div className="flex flex-row items-center justify-between px-2 sm:px-4 py-2 sm:py-3 gap-4 sm:gap-8 scrollbar-hide relative overflow-x-auto w-full" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', overflowX: 'auto', minWidth: 0 }}>
           {categories.map((cat, idx) => (
             <div
@@ -641,12 +771,13 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               {/* Dropdown */}
               {cat.dropdown && openDropdown === cat.name && (
                 <div
-                  className="fixed bg-white shadow-lg rounded-lg border py-2 min-w-[140px] z-[9999] animate-fade-in"
+                  className="fixed bg-white shadow-lg rounded-lg border py-2 min-w-[140px] animate-fade-in"
                   style={{
                     left: dropdownPos?.left || 0,
                     top: dropdownPos?.top || 0,
                     transform: 'translateX(-50%)',
-                    minWidth: 160
+                    minWidth: 160,
+                    zIndex: 100001
                   }}
                 >
                   {cat.dropdown.map(sub => (
