@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ProductCard } from './ProductCard';
 import { Product } from '@/types/product';
 
@@ -7,6 +8,10 @@ interface ProductGridProps {
 }
 
 export const ProductGrid = ({ products, onAddToCart }: ProductGridProps) => {
+  const [visibleCount, setVisibleCount] = useState(8);
+  const visibleProducts = products.slice(0, visibleCount);
+  const hasMore = visibleCount < products.length;
+
   return (
     <section className="py-16 bg-muted/20">
       <div className="container mx-auto px-4">
@@ -22,7 +27,7 @@ export const ProductGrid = ({ products, onAddToCart }: ProductGridProps) => {
 
         {/* Products Grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 md:gap-8">
-          {products.map((product, index) => (
+          {visibleProducts.map((product, index) => (
             <div
               key={product.id}
               className="animate-fade-in"
@@ -34,11 +39,16 @@ export const ProductGrid = ({ products, onAddToCart }: ProductGridProps) => {
         </div>
 
         {/* Load More Button */}
+        {hasMore && (
         <div className="text-center mt-12">
-          <button className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-glow transition-colors font-semibold">
+            <button
+              className="px-8 py-3 bg-primary text-primary-foreground rounded-lg hover:bg-primary-glow transition-colors font-semibold"
+              onClick={() => setVisibleCount(c => Math.min(c + 8, products.length))}
+            >
             Load More Products
           </button>
         </div>
+        )}
       </div>
     </section>
   );

@@ -4,6 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { X, Plus, Minus, ShoppingBag } from 'lucide-react';
 import { CartItem } from '@/types/product';
+import { useNavigate } from 'react-router-dom';
 
 interface CartProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface CartProps {
 
 export const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }: CartProps) => {
   const [isCheckingOut, setIsCheckingOut] = useState(false);
+  const navigate = useNavigate();
 
   const total = items.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const totalItems = items.reduce((sum, item) => sum + item.quantity, 0);
@@ -145,7 +147,10 @@ export const Cart = ({ isOpen, onClose, items, onUpdateQuantity, onRemoveItem }:
                 
                 <Button
                   className="w-full bg-primary hover:bg-primary-glow text-primary-foreground font-semibold py-3"
-                  onClick={handleCheckout}
+                  onClick={() => {
+                    onClose();
+                    setTimeout(() => navigate('/checkout'), 300);
+                  }}
                   disabled={isCheckingOut}
                 >
                   {isCheckingOut ? 'Processing...' : 'Checkout'}

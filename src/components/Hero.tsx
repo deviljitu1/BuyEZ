@@ -25,15 +25,15 @@ export const Hero = () => {
           </div>
 
           {/* Headline */}
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-6 text-white drop-shadow-lg">
             Shop Premium Tech
-            <span className="block bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
+            <span className="block text-white drop-shadow-lg">
               Made Simple
             </span>
           </h1>
 
           {/* Subheadline */}
-          <p className="text-lg md:text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-lg md:text-xl text-white mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
             Discover the latest in technology with our curated collection of premium devices. 
             Fast shipping, easy returns, and unbeatable prices.
           </p>
@@ -60,16 +60,16 @@ export const Hero = () => {
           {/* Stats */}
           <div className="grid grid-cols-3 gap-8 max-w-md mx-auto mt-12 pt-8 border-t border-border/50">
             <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">50K+</div>
-              <div className="text-sm text-muted-foreground">Happy Customers</div>
+              <div className="text-2xl font-bold text-white drop-shadow">50K+</div>
+              <div className="text-sm text-white/80">Happy Customers</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">1000+</div>
-              <div className="text-sm text-muted-foreground">Products</div>
+              <div className="text-2xl font-bold text-white drop-shadow">1000+</div>
+              <div className="text-sm text-white/80">Products</div>
             </div>
             <div className="text-center">
-              <div className="text-2xl font-bold text-foreground">4.9★</div>
-              <div className="text-sm text-muted-foreground">Rating</div>
+              <div className="text-2xl font-bold text-white drop-shadow">4.9★</div>
+              <div className="text-sm text-white/80">Rating</div>
             </div>
           </div>
         </div>

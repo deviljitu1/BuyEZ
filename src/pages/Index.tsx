@@ -1,22 +1,15 @@
-import { useState } from 'react';
-import { Header } from '@/components/Header';
 import { Hero } from '@/components/Hero';
 import { ProductGrid } from '@/components/ProductGrid';
-import { Cart } from '@/components/Cart';
-import { useCart } from '@/hooks/useCart';
 import { mockProducts } from '@/data/mockProducts';
+import { Product } from '@/types/product';
 
-const Index = () => {
-  const [isCartOpen, setIsCartOpen] = useState(false);
-  const { items, addToCart, updateQuantity, removeFromCart, getCartCount } = useCart();
+type IndexProps = {
+  addToCart: (product: Product) => void;
+};
 
+const Index = ({ addToCart }: IndexProps) => {
   return (
     <div className="min-h-screen bg-background">
-      <Header 
-        cartCount={getCartCount()} 
-        onCartClick={() => setIsCartOpen(true)} 
-      />
-      
       <main>
         <Hero />
         <ProductGrid 
@@ -24,14 +17,6 @@ const Index = () => {
           onAddToCart={addToCart} 
         />
       </main>
-
-      <Cart
-        isOpen={isCartOpen}
-        onClose={() => setIsCartOpen(false)}
-        items={items}
-        onUpdateQuantity={updateQuantity}
-        onRemoveItem={removeFromCart}
-      />
     </div>
   );
 };

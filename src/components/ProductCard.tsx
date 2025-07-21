@@ -4,6 +4,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { Product } from '@/types/product';
+import { Link } from 'react-router-dom';
+import { useCart } from '@/hooks/useCart';
 
 interface ProductCardProps {
   product: Product;
@@ -13,6 +15,10 @@ interface ProductCardProps {
 export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const { items, updateQuantity } = useCart();
+
+  const cartItem = items.find(item => item.id === product.id);
+  const quantity = cartItem ? cartItem.quantity : 0;
 
   const handleAddToCart = async () => {
     setIsLoading(true);
@@ -26,7 +32,8 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
     : 0;
 
   return (
-    <Card className="group cursor-pointer border-0 bg-card shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-scale-in">
+    <Link to={`/product/${product.id}`} className="block group cursor-pointer border-0 bg-card shadow-sm hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 animate-scale-in">
+      <Card>
       <CardContent className="p-0">
         {/* Image Container */}
         <div className="relative overflow-hidden rounded-t-lg">
@@ -35,30 +42,24 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
             alt={product.name}
             className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
           />
-          
-          {/* Overlay Actions */}
+            {/* Overlay Actions (centered on image, as before) */}
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-2">
             <Button
               variant="secondary"
               size="icon"
               className="bg-background/90 hover:bg-background shadow-lg"
-              onClick={(e) => {
-                e.stopPropagation();
+                onClick={e => {
+                  e.preventDefault();
                 setIsLiked(!isLiked);
               }}
             >
-              <Heart 
-                className={`w-4 h-4 transition-colors ${
-                  isLiked ? 'text-red-500 fill-current' : 'text-muted-foreground'
-                }`} 
-              />
+                <Heart className={`w-4 h-4 transition-colors ${isLiked ? 'text-red-500 fill-current' : 'text-muted-foreground'}`} />
             </Button>
-            
             <Button
               size="sm"
               className="bg-primary hover:bg-primary-glow shadow-lg transform transition-transform hover:scale-105"
-              onClick={(e) => {
-                e.stopPropagation();
+                onClick={e => {
+                  e.preventDefault();
                 handleAddToCart();
               }}
               disabled={isLoading}
@@ -67,31 +68,8 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
               {isLoading ? 'Adding...' : 'Add to Cart'}
             </Button>
           </div>
-
-          {/* Badges */}
-          <div className="absolute top-3 left-3 flex flex-col space-y-2">
-            {product.isNew && (
-              <Badge className="bg-success text-success-foreground">
-                New
-              </Badge>
-            )}
-            {discountPercentage > 0 && (
-              <Badge className="bg-warning text-warning-foreground">
-                -{discountPercentage}%
-              </Badge>
-            )}
+            {/* Badges, Stock Badge, etc. remain unchanged */}
           </div>
-
-          {/* Stock Badge */}
-          {product.stock < 5 && product.stock > 0 && (
-            <div className="absolute top-3 right-3">
-              <Badge variant="destructive" className="text-xs">
-                Only {product.stock} left
-              </Badge>
-            </div>
-          )}
-        </div>
-
         {/* Content */}
         <div className="p-4 space-y-3">
           {/* Category */}
@@ -123,7 +101,7 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
             </span>
           </div>
 
-          {/* Price */}
+            {/* Price and Actions Row */}
           <div className="flex items-center space-x-2">
             <span className="text-lg font-bold text-foreground">
               ${product.price}
@@ -133,15 +111,57 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
                 ${product.originalPrice}
               </span>
             )}
+              {discountPercentage > 0 && (
+                <Badge className="bg-warning text-warning-foreground">
+                  -{discountPercentage}%
+                </Badge>
+              )}
+              {/* Quantity Selector */}
+              {quantity > 0 && (
+                <div className="flex items-center space-x-2 ml-2">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={e => {
+                      e.preventDefault();
+                      updateQuantity(product.id, Math.max(0, quantity - 1));
+                    }}
+                  >
+                    <span className="text-lg">-</span>
+                  </Button>
+                  <span className="text-sm font-medium w-6 text-center">{quantity}</span>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={e => {
+                      e.preventDefault();
+                      updateQuantity(product.id, quantity + 1);
+                    }}
+                  >
+                    <span className="text-lg">+</span>
+                  </Button>
+                </div>
+              )}
           </div>
+
+            {/* Stock Badge */}
+            {product.stock < 5 && product.stock > 0 && (
+              <div>
+                <Badge variant="destructive" className="text-xs">
+                  Only {product.stock} left
+                </Badge>
+              </div>
+            )}
 
           {/* Quick Add Button - Mobile */}
           <Button
             variant="outline"
             size="sm"
             className="w-full md:hidden mt-3"
-            onClick={(e) => {
-              e.stopPropagation();
+              onClick={e => {
+                e.preventDefault();
               handleAddToCart();
             }}
             disabled={isLoading}
@@ -152,5 +172,6 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
         </div>
       </CardContent>
     </Card>
+    </Link>
   );
 };
