@@ -37,6 +37,20 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const mostSearched = ['iPhone 14 Pro', 'MacBook Pro', 'AirPods Pro', 'Apple Watch', 'iPad Pro', 'iMac'];
   const navigate = useNavigate();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  // Check if mobile on mount and window resize
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 640); // sm breakpoint is 640px
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   // Load recent searches from localStorage on mount
   useEffect(() => {
@@ -168,7 +182,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   }
 
   // Helper to detect mobile
-  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  // const isMobile = typeof window !== 'undefined' && window.innerWidth < 768; // This line is now redundant
 
   // Mutually exclusive openers
   const openMenu = () => {
@@ -253,7 +267,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             />
           </form>
           {/* Desktop Search Dropdown using Portal */}
-          {showSearchDropdown && typeof window !== 'undefined' && createPortal(
+          {showSearchDropdown && !isMobile && typeof window !== 'undefined' && createPortal(
             (() => {
               const input = searchInputRef.current;
               let style = {};
@@ -432,8 +446,8 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
       </div>
 
       {/* Modern Mobile Search Bar (always visible on mobile) */}
-      <div className="block sm:hidden w-full px-2 py-2 bg-background">
-        <form onSubmit={handleSearchSubmit} className="flex items-center w-full rounded-full bg-muted px-4 py-2 shadow-sm border border-muted focus-within:ring-2 focus-within:ring-primary relative">
+      <div className="block sm:hidden w-full px-2 py-2 bg-background relative">
+        <form onSubmit={handleSearchSubmit} className="flex items-center relative">
           <Search className="w-5 h-5 text-muted-foreground mr-2" />
           <input
             type="text"
@@ -441,25 +455,9 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             className="flex-1 bg-transparent border-0 outline-none text-base placeholder:text-muted-foreground"
             value={searchValue}
             onChange={e => setSearchValue(e.target.value)}
-            onFocus={() => setShowSearchDropdown(true)}
-            onBlur={e => {
-              // Only close if focus moves outside the dropdown
-              setTimeout(() => {
-                if (!e.relatedTarget || !e.relatedTarget.closest('.search-dropdown')) {
-                  setShowSearchDropdown(false);
-                }
-              }, 150);
-            }}
-            onKeyDown={e => {
-              if (e.key === 'Enter') {
-                e.preventDefault();
-                if (searchValue.trim()) {
-                  addRecentSearch(searchValue);
-                  setShowSearchDropdown(false);
-                  navigate(`/search?q=${encodeURIComponent(searchValue)}`);
-                }
-              }
-            }}
+            onFocus={handleSearchFocus}
+            onBlur={handleSearchBlur}
+            ref={mobileSearchInputRef}
           />
           <button className="ml-2 p-1 rounded-full hover:bg-primary/10 transition" aria-label="Camera or QR" type="button" onClick={handleCameraClick}>
             <Camera className="w-5 h-5 text-muted-foreground" />
@@ -475,77 +473,100 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
           <button className="ml-1 p-1 rounded-full hover:bg-primary/10 transition" aria-label="Voice Search" type="button" onClick={handleVoiceSearch}>
             <Mic className="w-5 h-5 text-muted-foreground" />
           </button>
-          {/* Search Dropdown */}
-          {showSearchDropdown && (
-            <div className="search-dropdown absolute left-0 top-12 w-full bg-white shadow-lg rounded-xl p-3 z-[9999] animate-fade-in text-left max-h-96 overflow-y-auto">
-              {/* Live Suggestions */}
-              {searchValue.trim() && suggestions.length > 0 && (
-                <div className="mb-3">
-                  <div className="text-xs font-semibold text-muted-foreground mb-1">Suggestions</div>
-                  <div className="flex flex-col gap-1">
-                    {suggestions.map((s, i) => (
-                      <button
-                        key={i}
-                        className="flex items-center px-3 py-2 rounded-lg hover:bg-primary/10 transition text-left"
-                        type="button"
-                        onMouseDown={() => handleSearchItemClick(s.name)}
-                      >
-                        <span className="font-medium mr-2">
-                          {highlightMatch(s.name, searchValue)}
-                        </span>
-                        <span className="text-xs text-muted-foreground">{highlightMatch(s.category, searchValue)}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-              {/* Recent Searches */}
-              {!searchValue.trim() && recentSearches.length > 0 && (
-                <div className="mb-3">
-                  <div className="text-xs font-semibold text-muted-foreground mb-1">Recent Searches</div>
-                  <div className="flex flex-wrap gap-2">
-                    {recentSearches.map((s, i) => (
-                      <button
-                        key={i}
-                        className="px-3 py-1 rounded-full bg-muted text-xs hover:bg-primary/10 transition"
-                        type="button"
-                        onMouseDown={() => handleSearchItemClick(s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                    <button
-                      className="ml-auto px-2 py-1 text-xs text-destructive hover:underline bg-transparent"
-                      type="button"
-                      onMouseDown={clearRecentSearches}
-                    >
-                      Clear
-                    </button>
-                  </div>
-                </div>
-              )}
-              {/* Most Searched */}
-              {!searchValue.trim() && (
-                <div>
-                  <div className="text-xs font-semibold text-muted-foreground mb-1">Most Searched</div>
-                  <div className="flex flex-wrap gap-2">
-                    {mostSearched.map((s, i) => (
-                      <button
-                        key={i}
-                        className="px-3 py-1 rounded-full bg-muted text-xs hover:bg-primary/10 transition"
-                        type="button"
-                        onMouseDown={() => handleSearchItemClick(s)}
-                      >
-                        {s}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
         </form>
-        {qrResult && <div className="text-success text-xs mt-1 text-center">{qrResult}</div>}
+        {/* Mobile Search Dropdown Portal */}
+        {showSearchDropdown && isMobile && typeof window !== 'undefined' && createPortal(
+          (() => {
+            const input = mobileSearchInputRef.current;
+            let style = {};
+            if (input) {
+              const rect = input.getBoundingClientRect();
+              style = {
+                position: 'fixed',
+                left: '0',
+                top: rect.bottom + window.scrollY,
+                width: '100%',
+                zIndex: 99999,
+                maxHeight: `calc(100vh - ${rect.bottom}px)`,
+                overflowY: 'auto'
+              };
+            }
+            return (
+              <div 
+                className="search-dropdown bg-white shadow-lg p-4 animate-fade-in text-left border-t border-border" 
+                style={style}
+              >
+                {/* Live Suggestions */}
+                {searchValue.trim() && suggestions.length > 0 && (
+                  <div className="mb-3">
+                    <div className="text-sm font-semibold text-foreground mb-2">Product Suggestions</div>
+                    <div className="flex flex-col gap-1">
+                      {suggestions.map((s, i) => (
+                        <button
+                          key={i}
+                          className="flex items-center px-4 py-3 rounded-lg hover:bg-muted transition-colors text-left"
+                          type="button"
+                          onMouseDown={() => handleSearchItemClick(s.name)}
+                        >
+                          <span className="font-medium text-sm">{highlightMatch(s.name, searchValue)}</span>
+                          {s.category && (
+                            <span className="text-xs text-muted-foreground ml-2">in {highlightMatch(s.category, searchValue)}</span>
+                          )}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Recent Searches */}
+                {!searchValue.trim() && recentSearches.length > 0 && (
+                  <div className="mb-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <div className="text-sm font-semibold text-foreground">Recent Searches</div>
+                      <button
+                        className="text-xs text-primary hover:text-primary/80 hover:underline bg-transparent"
+                        type="button"
+                        onMouseDown={clearRecentSearches}
+                      >
+                        Clear All
+                      </button>
+                    </div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {recentSearches.map((s, i) => (
+                        <button
+                          key={i}
+                          className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
+                          type="button"
+                          onMouseDown={() => handleSearchItemClick(s)}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {/* Most Searched */}
+                {!searchValue.trim() && (
+                  <div>
+                    <div className="text-sm font-semibold text-foreground mb-2">Popular Searches</div>
+                    <div className="flex flex-wrap gap-2 mt-2">
+                      {mostSearched.map((s, i) => (
+                        <button
+                          key={i}
+                          className="px-4 py-2 rounded-full bg-muted text-sm hover:bg-muted/80 transition-colors"
+                          type="button"
+                          onMouseDown={() => handleSearchItemClick(s)}
+                        >
+                          {s}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })(),
+          document.body
+        )}
       </div>
 
       {/* Mobile Menu */}
