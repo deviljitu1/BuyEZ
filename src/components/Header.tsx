@@ -1,9 +1,11 @@
-import { useState, useRef } from 'react';
-import { ShoppingCart, Search, Menu, X, User, UserCircle, Star, Box, Heart, Gift, BadgePercent, ChevronRight } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ShoppingCart, Search, Menu, X, User, UserCircle, Star, Box, Heart, Gift, BadgePercent, ChevronRight, Camera, Mic } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useNavigate } from 'react-router-dom';
+import { mockProducts } from '@/data/mockProducts';
+import React from 'react';
 
 interface HeaderProps {
   cartCount: number;
@@ -17,6 +19,123 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const userButtonRef = useRef<HTMLButtonElement>(null);
+  const [language, setLanguage] = useState('en');
+  const languages = [
+    { code: 'en', label: 'English', short: 'EN' },
+    { code: 'hi', label: 'Hindi', short: 'HI' },
+    { code: 'or', label: 'Odia', short: 'OD' },
+    { code: 'mr', label: 'Marathi', short: 'MR' },
+    { code: 'ta', label: 'Tamil', short: 'TA' },
+  ];
+  const [searchValue, setSearchValue] = useState('');
+  const [qrResult, setQrResult] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const mostSearched = ['iPhone', 'Laptop', 'Shoes', 'Headphones', 'T-shirt', 'Smart Watch'];
+  const navigate = useNavigate();
+
+  // Load recent searches from localStorage
+  useEffect(() => {
+    const saved = localStorage.getItem('buyez-recent-searches');
+    if (saved) setRecentSearches(JSON.parse(saved));
+  }, []);
+
+  // Add to recent searches
+  const addRecentSearch = (term: string) => {
+    if (!term.trim()) return;
+    let updated = [term, ...recentSearches.filter(s => s !== term)];
+    if (updated.length > 8) updated = updated.slice(0, 8);
+    setRecentSearches(updated);
+    localStorage.setItem('buyez-recent-searches', JSON.stringify(updated));
+  };
+
+  // Handle search submit (for demo, just add to recent)
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchValue.trim()) return;
+    addRecentSearch(searchValue);
+    setShowSearchDropdown(false);
+    navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+  };
+
+  const handleSearchItemClick = (term: string) => {
+    setSearchValue(term);
+    setShowSearchDropdown(false);
+    addRecentSearch(term);
+    navigate(`/search?q=${encodeURIComponent(term)}`);
+  };
+
+  const clearRecentSearches = () => {
+    setRecentSearches([]);
+    localStorage.removeItem('buyez-recent-searches');
+  };
+
+  // Voice search handler
+  const handleVoiceSearch = () => {
+    setQrResult('');
+    if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+      alert('Voice search is not supported in this browser.');
+      return;
+    }
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'en-US';
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event: any) => {
+      setSearchValue(event.results[0][0].transcript);
+    };
+    recognition.onerror = (event: any) => {
+      alert('Voice search error: ' + event.error);
+    };
+    recognition.start();
+  };
+  // Camera/QR handler
+  const handleCameraClick = () => {
+    setQrResult('');
+    fileInputRef.current?.click();
+  };
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      // For demo, just show filename or mock QR result
+      setQrResult('QR scanned! (' + e.target.files[0].name + ')');
+    }
+  };
+
+  // Live suggestions as user types
+  const [suggestions, setSuggestions] = useState<{name: string, category: string}[]>([]);
+
+  useEffect(() => {
+    if (searchValue.trim()) {
+      const val = searchValue.trim().toLowerCase();
+      setSuggestions(
+        mockProducts
+          .filter(p =>
+            p.name.toLowerCase().includes(val) ||
+            (p.category && p.category.toLowerCase().includes(val))
+          )
+          .slice(0, 6)
+          .map(p => ({ name: p.name, category: p.category }))
+      );
+    } else {
+      setSuggestions([]);
+    }
+  }, [searchValue]);
+
+  // Helper to highlight match
+  function highlightMatch(text: string, query: string) {
+    if (!query) return text;
+    const idx = text.toLowerCase().indexOf(query.toLowerCase());
+    if (idx === -1) return text;
+    return (
+      <>
+        {text.slice(0, idx)}
+        <span className="bg-primary/20 text-primary font-semibold">{text.slice(idx, idx + query.length)}</span>
+        {text.slice(idx + query.length)}
+      </>
+    );
+  }
 
   // Helper to detect mobile
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
@@ -62,7 +181,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
 
   return (
     <>
-    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b">
+    <header className="sticky top-0 z-50 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full overflow-x-hidden">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-2">
@@ -100,25 +219,21 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
         </div>
 
         {/* Actions */}
-        <div className="flex items-center space-x-4">
-          {/* Mobile Search */}
-          <div className="lg:hidden relative">
-            <Button variant="ghost" size="icon" onClick={openMobileSearch}>
-              <Search className="w-5 h-5" />
-            </Button>
-            {mobileSearchOpen && (
-              <div className="absolute left-0 top-12 w-[90vw] max-w-xs bg-white shadow-lg rounded-lg p-3 z-[9999] flex items-center gap-2 animate-fade-in">
-                <Input
-                  autoFocus
-                  placeholder="Search products..."
-                  className="flex-1 bg-muted/50 border-0 focus:bg-background transition-colors"
-                />
-                <Button variant="ghost" size="icon" onClick={closeAll}>
-                  <X className="w-5 h-5" />
-                </Button>
-              </div>
-            )}
+        <div className="flex items-center space-x-2">
+          {/* Language Select: only show on sm and up */}
+          <div className="relative hidden sm:block">
+            <select
+              value={language}
+              onChange={e => setLanguage(e.target.value)}
+              className="rounded-md border border-muted bg-background px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-primary min-w-[80px]"
+              aria-label="Select Language"
+            >
+              {languages.map(lang => (
+                <option key={lang.code} value={lang.code}>{lang.label}</option>
+              ))}
+            </select>
           </div>
+          {/* Mobile Search: REMOVE search icon, add modern search bar below header */}
 
           {/* User Dropdown (hover on desktop, click on mobile) */}
           <div
@@ -192,28 +307,128 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
         </div>
       </div>
 
+      {/* Modern Mobile Search Bar (always visible on mobile) */}
+      <div className="block sm:hidden w-full px-2 py-2 bg-background">
+        <form onSubmit={handleSearchSubmit} className="flex items-center w-full rounded-full bg-muted px-4 py-2 shadow-sm border border-muted focus-within:ring-2 focus-within:ring-primary relative">
+          <Search className="w-5 h-5 text-muted-foreground mr-2" />
+          <input
+            type="text"
+            placeholder="Search for products, brands and more..."
+            className="flex-1 bg-transparent border-0 outline-none text-base placeholder:text-muted-foreground"
+            value={searchValue}
+            onChange={e => setSearchValue(e.target.value)}
+            onFocus={() => setShowSearchDropdown(true)}
+            onBlur={() => setTimeout(() => setShowSearchDropdown(false), 150)}
+          />
+          <button className="ml-2 p-1 rounded-full hover:bg-primary/10 transition" aria-label="Camera or QR" type="button" onClick={handleCameraClick}>
+            <Camera className="w-5 h-5 text-muted-foreground" />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="hidden"
+              onChange={handleFileChange}
+            />
+          </button>
+          <button className="ml-1 p-1 rounded-full hover:bg-primary/10 transition" aria-label="Voice Search" type="button" onClick={handleVoiceSearch}>
+            <Mic className="w-5 h-5 text-muted-foreground" />
+          </button>
+          {/* Search Dropdown */}
+          {showSearchDropdown && (
+            <div className="absolute left-0 top-12 w-full bg-white shadow-lg rounded-xl p-3 z-[9999] animate-fade-in text-left max-h-96 overflow-y-auto">
+              {/* Live Suggestions */}
+              {searchValue.trim() && suggestions.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-xs font-semibold text-muted-foreground mb-1">Suggestions</div>
+                  <div className="flex flex-col gap-1">
+                    {suggestions.map((s, i) => (
+                      <button
+                        key={i}
+                        className="flex items-center px-3 py-2 rounded-lg hover:bg-primary/10 transition text-left"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s.name)}
+                      >
+                        <span className="font-medium mr-2">
+                          {highlightMatch(s.name, searchValue)}
+                        </span>
+                        <span className="text-xs text-muted-foreground">{highlightMatch(s.category, searchValue)}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Recent Searches */}
+              {!searchValue.trim() && recentSearches.length > 0 && (
+                <div className="mb-3">
+                  <div className="text-xs font-semibold text-muted-foreground mb-1">Recent Searches</div>
+                  <div className="flex flex-wrap gap-2">
+                    {recentSearches.map((s, i) => (
+                      <button
+                        key={i}
+                        className="px-3 py-1 rounded-full bg-muted text-xs hover:bg-primary/10 transition"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                    <button
+                      className="ml-auto px-2 py-1 text-xs text-destructive hover:underline bg-transparent"
+                      type="button"
+                      onMouseDown={clearRecentSearches}
+                    >
+                      Clear
+                    </button>
+                  </div>
+                </div>
+              )}
+              {/* Most Searched */}
+              {!searchValue.trim() && (
+                <div>
+                  <div className="text-xs font-semibold text-muted-foreground mb-1">Most Searched</div>
+                  <div className="flex flex-wrap gap-2">
+                    {mostSearched.map((s, i) => (
+                      <button
+                        key={i}
+                        className="px-3 py-1 rounded-full bg-muted text-xs hover:bg-primary/10 transition"
+                        type="button"
+                        onMouseDown={() => handleSearchItemClick(s)}
+                      >
+                        {s}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </form>
+        {qrResult && <div className="text-success text-xs mt-1 text-center">{qrResult}</div>}
+      </div>
+
       {/* Mobile Menu */}
       {isMenuOpen && (
         <div className="md:hidden border-t bg-background/95 backdrop-blur">
           <nav className="container mx-auto px-4 py-4">
             <ul className="flex flex-col gap-2">
               <li>
-                <NavLink to="/" className={navLinkClass} end>
+                <NavLink to="/" className={navLinkClass} end onClick={closeAll}>
                   Home
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/products" className={navLinkClass}>
+                <NavLink to="/products" className={navLinkClass} onClick={closeAll}>
                   Products
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/categories" className={navLinkClass}>
+                <NavLink to="/categories" className={navLinkClass} onClick={closeAll}>
                   Categories
                 </NavLink>
               </li>
               <li>
-                <NavLink to="/about" className={navLinkClass}>
+                <NavLink to="/about" className={navLinkClass} onClick={closeAll}>
                   About
                 </NavLink>
               </li>
@@ -234,7 +449,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
     </header>
       {/* Category Bar */}
       <nav className="w-full bg-white shadow-sm border-b">
-        <div className="container mx-auto flex flex-row items-center justify-between px-2 sm:px-4 py-2 sm:py-3 gap-4 sm:gap-8 scrollbar-hide relative overflow-x-auto" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', overflowX: 'auto' }}>
+        <div className="flex flex-row items-center justify-between px-2 sm:px-4 py-2 sm:py-3 gap-4 sm:gap-8 scrollbar-hide relative overflow-x-auto w-full" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', overflowX: 'auto', minWidth: 0 }}>
           {categories.map((cat, idx) => (
             <div
               key={cat.name}

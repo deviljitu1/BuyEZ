@@ -20,7 +20,7 @@ export const ProductGrid = ({ products, onAddToCart }: ProductGridProps) => {
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-bold tracking-tight mb-3 sm:mb-4">
             Featured Products
           </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
+          <p className="hidden sm:block text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
             Discover our handpicked selection of premium tech products
           </p>
         </div>

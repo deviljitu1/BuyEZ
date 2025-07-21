@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { ArrowRight, Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import heroBackground from '@/assets/hero-background.png';
@@ -49,6 +49,9 @@ export const Hero = () => {
     },
   });
 
+  const progressRef = useRef<HTMLDivElement[]>([]);
+  const slideInterval = 4000; // ms, adjust if your auto-slide interval is different
+
   // Autoplay effect
   useEffect(() => {
     if (!instanceRef.current) return;
@@ -75,66 +78,55 @@ export const Hero = () => {
   const goToNext = () => instanceRef.current?.next();
 
   return (
-    <section className="relative h-[100vh] flex items-center justify-center overflow-hidden m-0 p-0">
+    <section className="relative w-full h-[340px] xs:h-[400px] sm:h-[480px] md:h-[520px] lg:h-[560px] xl:h-[600px] 2xl:h-[680px] mb-4 sm:mb-10">
       {/* Carousel: background and overlay together */}
       <div ref={sliderRef} className="keen-slider absolute inset-0 w-full h-full z-0">
         {slides.map((slide, idx) => (
           <div
             key={idx}
-            className="keen-slider__slide w-full h-full bg-cover bg-center bg-no-repeat flex items-center justify-center h-full"
+            className="keen-slider__slide w-full h-full bg-cover bg-center bg-no-repeat flex items-center justify-center h-full rounded-xl"
             style={{ backgroundImage: `url(${slide.background})` }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-glow/20" />
+            <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-primary-glow/20 rounded-xl" />
             {/* Overlay Content */}
-            <div className="relative z-10 container mx-auto px-1 sm:px-4 text-center flex flex-col items-center justify-center h-full">
-              <div className="max-w-4xl mx-auto animate-fade-in w-full">
-                {/* Badge */}
-                <div className="inline-flex items-center space-x-2 bg-accent/80 backdrop-blur-sm rounded-full px-2 py-1 mb-3 sm:px-4 sm:py-2 sm:mb-6">
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white bg-gradient-to-t from-black/60 to-transparent p-4 md:p-8">
+              <div className="max-w-2xl flex flex-col items-center">
+                <div className="inline-flex items-center space-x-2 bg-accent/80 backdrop-blur-sm rounded-full px-2 py-1 mb-2 sm:px-4 sm:py-2 sm:mb-4">
                   <Star className="w-4 h-4 text-primary fill-current" />
                   <span className="text-[10px] xs:text-xs sm:text-sm font-medium text-accent-foreground">
                     Trusted by 50K+ customers
                   </span>
                 </div>
-                <h1 className="text-xl xs:text-2xl sm:text-4xl md:text-6xl lg:text-7xl font-bold tracking-tight mb-3 sm:mb-6 text-white drop-shadow-lg leading-tight">
+                <h2 className="text-2xl sm:mb-2 sm:text-[clamp(2rem,6vw,3.5rem)] font-bold tracking-tight shadow-lg leading-tight mb-1 sm:mb-2">
                   {slide.heading}
-                </h1>
-                <p className="text-sm xs:text-base sm:text-xl text-white mb-5 sm:mb-8 max-w-2xl mx-auto leading-relaxed drop-shadow-md">
+                </h2>
+                <p className="text-xs sm:text-[clamp(0.95rem,2.5vw,1.25rem)] text-white mb-2 sm:mb-6 max-w-md sm:max-w-xl mx-auto leading-relaxed drop-shadow-md break-words whitespace-pre-line px-2 sm:px-0">
                   {slide.subheading}
                 </p>
-                <div className="flex flex-col sm:flex-row items-center justify-center space-y-2 sm:space-y-0 sm:space-x-4">
-                  <a href={slide.button1.link}>
-                    <Button 
-                      size="lg" 
-                      className="bg-primary hover:bg-primary-glow text-primary-foreground px-4 sm:px-8 py-2 sm:py-4 text-sm sm:text-lg font-semibold transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl"
-                    >
-                      {slide.button1.text}
-                      <ArrowRight className="ml-2 w-5 h-5" />
-                    </Button>
-                  </a>
-                  <a href={slide.button2.link}>
-                    <Button 
-                      variant="outline" 
-                      size="lg"
-                      className="px-4 sm:px-8 py-2 sm:py-4 text-sm sm:text-lg font-semibold bg-background/80 backdrop-blur-sm border-2 hover:bg-background transition-all duration-300"
-                    >
-                      {slide.button2.text}
-                    </Button>
-                  </a>
+                <div className="mt-6 flex flex-row items-center justify-center gap-2 w-full max-w-xs sm:max-w-none mx-auto">
+                  <Button size="sm" className="min-w-[100px] px-2 py-1 bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg transform transition-transform hover:scale-105 text-xs sm:text-lg">
+                    {slide.button1.text} <ChevronRight className="w-4 h-4 ml-1" />
+                  </Button>
+                  <Button size="sm" variant="secondary" className="min-w-[100px] px-2 py-1 bg-white/90 hover:bg-white text-secondary-foreground shadow-lg transform transition-transform hover:scale-105 text-xs sm:text-lg">
+                    {slide.button2.text}
+                  </Button>
                 </div>
-                {/* Stats */}
-                <div className="grid grid-cols-3 gap-2 sm:gap-8 max-w-md mx-auto mt-4 sm:mt-8 pt-4 sm:pt-8 border-t border-border/50">
-                  <div className="text-center">
-                    <div className="text-base sm:text-2xl font-bold text-white drop-shadow">50K+</div>
-                    <div className="text-[10px] sm:text-sm text-white/80">Happy Customers</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-base sm:text-2xl font-bold text-white drop-shadow">1000+</div>
-                    <div className="text-[10px] sm:text-sm text-white/80">Products</div>
-                  </div>
-                  <div className="text-center">
-                    <div className="text-base sm:text-2xl font-bold text-white drop-shadow">4.9★</div>
-                    <div className="text-[10px] sm:text-sm text-white/80">Rating</div>
-                  </div>
+              </div>
+              {/* Animated Progress Pills */}
+              <div className="absolute bottom-[3px] left-0 right-0 flex justify-center">
+                <div className="flex gap-2">
+                  {slides.map((_, idx) => (
+                    <span
+                      key={idx}
+                      className="relative h-1.5 w-8 rounded-full bg-muted overflow-hidden"
+                    >
+                      <div
+                        ref={el => progressRef.current[idx] = el!}
+                        className={`absolute left-0 top-0 h-full rounded-full transition-all duration-0 ${currentSlide === idx ? 'bg-black' : 'bg-transparent'}`}
+                        style={currentSlide === idx ? { width: '100%', transition: `width ${slideInterval}ms linear` } : { width: 0, transition: 'none' }}
+                      />
+                    </span>
+                  ))}
                 </div>
               </div>
             </div>
@@ -160,18 +152,7 @@ export const Hero = () => {
         ))}
       </div>
 
-      {/* Dots Navigation */}
-      <div className="flex justify-center mt-4 sm:mt-6 gap-3 absolute left-1/2 -translate-x-1/2 bottom-6 sm:bottom-12 z-20">
-        {slides.map((_, idx) => (
-          <button
-            key={idx}
-            className={`w-4 h-4 sm:w-3 sm:h-3 rounded-full transition-all duration-300 ${currentSlide === idx ? 'bg-primary' : 'bg-white/60'}`}
-            onClick={() => instanceRef.current?.moveToIdx(idx)}
-            aria-label={`Go to slide ${idx + 1}`}
-            style={{ outline: 'none', border: 'none' }}
-          />
-        ))}
-      </div>
+      {/* Dots Navigation moved below Products stat */}
 
       {/* Floating Elements */}
       <div className="absolute top-20 left-10 w-20 h-20 bg-primary/10 rounded-full animate-pulse" />

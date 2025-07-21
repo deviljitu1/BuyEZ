@@ -17,6 +17,7 @@ import { lazy } from 'react';
 import Checkout from './pages/Checkout.tsx';
 import OrderConfirm from './pages/OrderConfirm.tsx';
 import Profile from './pages/Profile';
+import SearchResults from './pages/SearchResults';
 
 const queryClient = new QueryClient();
 
@@ -40,6 +41,7 @@ const App = () => {
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirm" element={<OrderConfirm />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/search" element={<SearchResults />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
