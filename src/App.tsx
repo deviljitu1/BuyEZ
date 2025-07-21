@@ -18,6 +18,7 @@ import Checkout from './pages/Checkout.tsx';
 import OrderConfirm from './pages/OrderConfirm.tsx';
 import Profile from './pages/Profile';
 import SearchResults from './pages/SearchResults';
+import { AiChat } from '@/components/AiChat';
 
 const queryClient = new QueryClient();
 
@@ -52,6 +53,7 @@ const App = () => {
             onUpdateQuantity={updateQuantity}
             onRemoveItem={removeFromCart}
           />
+          <AiChat />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
