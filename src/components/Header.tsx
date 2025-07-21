@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { ShoppingCart, Search, Menu, X, User } from 'lucide-react';
+import { useState, useRef } from 'react';
+import { ShoppingCart, Search, Menu, X, User, UserCircle, Star, Box, Heart, Gift, BadgePercent, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -14,6 +14,11 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [openDropdown, setOpenDropdown] = useState<string | null>(null);
   const [dropdownPos, setDropdownPos] = useState<{ left: number, top: number } | null>(null);
+  const [userDropdownOpen, setUserDropdownOpen] = useState(false);
+  const userButtonRef = useRef<HTMLButtonElement>(null);
+
+  // Helper to detect mobile
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     isActive
@@ -78,10 +83,50 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             <Search className="w-5 h-5" />
           </Button>
 
-          {/* User */}
-          <Button variant="ghost" size="icon">
-            <User className="w-5 h-5" />
-          </Button>
+          {/* User Dropdown (hover on desktop, click on mobile) */}
+          <div
+            className="relative"
+            onMouseEnter={() => { if (!isMobile) setUserDropdownOpen(true); }}
+            onMouseLeave={() => { if (!isMobile) setUserDropdownOpen(false); }}
+          >
+            <Button
+              ref={userButtonRef}
+              variant="ghost"
+              size="icon"
+              aria-label="Login"
+              onClick={() => { if (isMobile) setUserDropdownOpen((open) => !open); }}
+              className={userDropdownOpen ? 'bg-primary/10' : ''}
+            >
+              <User className="w-5 h-5" />
+            </Button>
+            {userDropdownOpen && (
+              <div
+                className="absolute right-0 mt-2 w-64 bg-white shadow-xl rounded-xl border z-[9999] animate-fade-in"
+              >
+                <div className="flex items-center justify-between px-4 py-3 border-b">
+                  <span className="font-medium text-base">New customer?</span>
+                  <a href="#" className="text-primary font-semibold hover:underline">Sign Up</a>
+                </div>
+                <div className="py-2">
+                  <NavLink to="/profile" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
+                    <UserCircle className="w-5 h-5 mr-3" /> My Profile
+                  </NavLink>
+                  <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
+                    <Box className="w-5 h-5 mr-3" /> Orders
+                  </a>
+                  <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
+                    <Heart className="w-5 h-5 mr-3" /> Wishlist
+                  </a>
+                  <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
+                    <BadgePercent className="w-5 h-5 mr-3" /> Rewards
+                  </a>
+                  <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
+                    <Gift className="w-5 h-5 mr-3" /> Gift Cards
+                  </a>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Cart */}
           <Button variant="ghost" size="icon" onClick={onCartClick} className="relative">
@@ -140,7 +185,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
     </header>
       {/* Category Bar */}
       <nav className="w-full bg-white shadow-sm border-b">
-        <div className="container mx-auto flex flex-row items-center justify-between px-4 py-3 gap-8 scrollbar-hide relative" style={{ scrollbarWidth: 'none', overflowX: 'visible' }}>
+        <div className="container mx-auto flex flex-row items-center justify-between px-2 sm:px-4 py-2 sm:py-3 gap-4 sm:gap-8 scrollbar-hide relative overflow-x-auto" style={{ scrollbarWidth: 'none', WebkitOverflowScrolling: 'touch', overflowX: 'auto' }}>
           {categories.map((cat, idx) => (
             <div
               key={cat.name}

@@ -40,7 +40,7 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           <img
             src={product.image}
             alt={product.name}
-            className="w-full h-64 object-cover transition-transform duration-500 group-hover:scale-110"
+            className="w-full h-44 xs:h-52 sm:h-64 object-cover transition-transform duration-500 group-hover:scale-110"
           />
             {/* Overlay Actions (centered on image, as before) */}
           <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-2">
@@ -71,14 +71,14 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
             {/* Badges, Stock Badge, etc. remain unchanged */}
           </div>
         {/* Content */}
-        <div className="p-4 space-y-3">
+        <div className="p-3 sm:p-4 space-y-2 sm:space-y-3">
           {/* Category */}
-          <div className="text-xs font-medium text-primary uppercase tracking-wide">
+          <div className="text-[11px] sm:text-xs font-medium text-primary uppercase tracking-wide">
             {product.category}
           </div>
 
           {/* Title */}
-          <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors line-clamp-2">
+          <h3 className="font-semibold text-card-foreground group-hover:text-primary transition-colors line-clamp-2 text-base sm:text-lg">
             {product.name}
           </h3>
 
@@ -88,7 +88,7 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
               {[...Array(5)].map((_, i) => (
                 <Star
                   key={i}
-                  className={`w-3 h-3 ${
+                  className={`w-3 h-3 sm:w-4 sm:h-4 ${
                     i < Math.floor(product.rating)
                       ? 'text-warning fill-current'
                       : 'text-muted-foreground'
@@ -96,7 +96,7 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
                 />
               ))}
             </div>
-            <span className="text-xs text-muted-foreground">
+            <span className="text-[11px] sm:text-xs text-muted-foreground">
               ({product.reviews})
             </span>
           </div>
@@ -107,7 +107,7 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
               ${product.price}
             </span>
             {product.originalPrice && (
-              <span className="text-sm text-muted-foreground line-through">
+              <span className="text-xs sm:text-sm text-muted-foreground line-through">
                 ${product.originalPrice}
               </span>
             )}
@@ -122,25 +122,25 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-6 w-6 min-w-6 min-h-6"
                     onClick={e => {
                       e.preventDefault();
                       updateQuantity(product.id, Math.max(0, quantity - 1));
                     }}
                   >
-                    <span className="text-lg">-</span>
+                    <span className="text-base">-</span>
                   </Button>
-                  <span className="text-sm font-medium w-6 text-center">{quantity}</span>
+                  <span className="text-xs sm:text-sm font-medium w-6 text-center">{quantity}</span>
                   <Button
                     variant="outline"
                     size="icon"
-                    className="h-6 w-6"
+                    className="h-6 w-6 min-w-6 min-h-6"
                     onClick={e => {
                       e.preventDefault();
                       updateQuantity(product.id, quantity + 1);
                     }}
                   >
-                    <span className="text-lg">+</span>
+                    <span className="text-base">+</span>
                   </Button>
                 </div>
               )}
@@ -159,7 +159,7 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
           <Button
             variant="outline"
             size="sm"
-            className="w-full md:hidden mt-3"
+            className="w-full md:hidden mt-2 text-sm"
               onClick={e => {
                 e.preventDefault();
               handleAddToCart();

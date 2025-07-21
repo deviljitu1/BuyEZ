@@ -4,18 +4,19 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import Index from "./pages/Index.tsx";
+import NotFound from "./pages/NotFound.tsx";
 import Products from "./pages/Products.tsx";
 import Categories from "./pages/Categories.tsx";
 import About from "./pages/About.tsx";
 import { Header } from "@/components/Header";
 import { Cart } from '@/components/Cart';
 import { useCart } from '@/hooks/useCart';
-import ProductDetail from './pages/ProductDetail';
+import ProductDetail from './pages/ProductDetail.tsx';
 import { lazy } from 'react';
-import Checkout from './pages/Checkout';
-import OrderConfirm from './pages/OrderConfirm';
+import Checkout from './pages/Checkout.tsx';
+import OrderConfirm from './pages/OrderConfirm.tsx';
+import Profile from './pages/Profile';
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => {
             <Route path="/product/:id" element={<ProductDetail addToCart={addToCart} />} />
             <Route path="/checkout" element={<Checkout />} />
             <Route path="/order-confirm" element={<OrderConfirm />} />
+            <Route path="/profile" element={<Profile />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
