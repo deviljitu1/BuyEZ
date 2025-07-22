@@ -6,6 +6,7 @@ import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { Product } from '@/types/product';
 import { Link } from 'react-router-dom';
 import { useCart } from '@/hooks/useCart';
+import { useWishlist } from '@/hooks/useWishlist';
 
 interface ProductCardProps {
   product: Product;
@@ -13,9 +14,10 @@ interface ProductCardProps {
 }
 
 export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
-  const [isLiked, setIsLiked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const { items, updateQuantity } = useCart();
+  const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
+  const liked = isInWishlist(product.id);
 
   const cartItem = items.find(item => item.id === product.id);
   const quantity = cartItem ? cartItem.quantity : 0;
@@ -45,15 +47,16 @@ export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
             {/* Overlay Actions (centered on image, as before) */}
             <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center space-x-2">
               <Button
-                variant="secondary"
+                variant={liked ? 'destructive' : 'secondary'}
                 size="icon"
                 className="bg-background/90 hover:bg-background shadow-lg"
                 onClick={e => {
                   e.preventDefault();
-                  setIsLiked(!isLiked);
+                  liked ? removeFromWishlist(product.id) : addToWishlist(product);
                 }}
+                title={liked ? 'Remove from Wishlist' : 'Add to Wishlist'}
               >
-                <Heart className={`w-4 h-4 transition-colors ${isLiked ? 'text-red-500 fill-current' : 'text-muted-foreground'}`} />
+                <Heart className={`w-4 h-4 transition-colors ${liked ? 'text-red-500 fill-current' : 'text-muted-foreground'}`} />
               </Button>
               <Button
                 size="sm"

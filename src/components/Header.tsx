@@ -405,12 +405,12 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                   <NavLink to="/profile" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
                     <UserCircle className="w-5 h-5 mr-3" /> My Profile
                   </NavLink>
-                  <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
+                  <NavLink to="/orders" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
                     <Box className="w-5 h-5 mr-3" /> Orders
-                  </a>
-                  <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
+                  </NavLink>
+                  <NavLink to="/wishlist" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
                     <Heart className="w-5 h-5 mr-3" /> Wishlist
-                  </a>
+                  </NavLink>
                   <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
                     <BadgePercent className="w-5 h-5 mr-3" /> Rewards
                   </a>

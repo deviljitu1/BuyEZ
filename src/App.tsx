@@ -19,6 +19,8 @@ import OrderConfirm from './pages/OrderConfirm.tsx';
 import Profile from './pages/Profile';
 import SearchResults from './pages/SearchResults';
 import { AiChat } from '@/components/AiChat';
+import Orders from './pages/Orders';
+import Wishlist from './pages/Wishlist';
 
 const queryClient = new QueryClient();
 
@@ -43,6 +45,8 @@ const App = () => {
             <Route path="/order-confirm" element={<OrderConfirm />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/search" element={<SearchResults />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/wishlist" element={<Wishlist />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

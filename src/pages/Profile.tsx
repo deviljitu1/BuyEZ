@@ -7,6 +7,9 @@ import { Dialog } from '@/components/ui/dialog';
 import { DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { LogOut, Plus, User, Mail, Phone, Globe, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { mockOrders } from '@/data/mockOrders';
+import { Badge } from '@/components/ui/badge';
+import { format } from 'date-fns';
 
 const mockAccounts = [
   { id: 1, name: 'John Doe', email: 'john.doe@email.com', avatar: '' },
@@ -39,6 +42,20 @@ const Profile = () => {
   const [emailSignup, setEmailSignup] = useState({ email: '', password: '', confirm: '' });
   const [emailError, setEmailError] = useState('');
   const navigate = useNavigate();
+
+  // Orders for the active account
+  const userOrders = mockOrders.filter(order => order.userEmail === accounts[activeAccount].email);
+
+  // Helper for status color
+  const statusColor = (status: string) => {
+    switch (status) {
+      case 'Delivered': return 'bg-green-100 text-green-700';
+      case 'Dispatched': return 'bg-blue-100 text-blue-700';
+      case 'In Process': return 'bg-yellow-100 text-yellow-800';
+      case 'Cancelled': return 'bg-red-100 text-red-700';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
 
   const handleLogout = () => {
     setShowLogout(false);
@@ -217,6 +234,48 @@ const Profile = () => {
             ))}
           </div>
         </div>
+      </Card>
+      {/* Orders Section */}
+      <Card className="w-full max-w-xl p-8 rounded-2xl shadow-xl border border-primary/20 bg-white/80 dark:bg-background/80 mt-8">
+        <h2 className="text-2xl font-bold text-primary mb-6 flex items-center gap-2">My Orders <span className="text-base font-normal text-muted-foreground">({userOrders.length})</span></h2>
+        {userOrders.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">No orders found for this account.</div>
+        ) : (
+          <div className="flex flex-col gap-6">
+            {userOrders.map(order => (
+              <div key={order.orderId} className="border rounded-xl p-4 bg-card/80 shadow-sm">
+                <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <span>Order ID:</span>
+                    <span className="font-mono font-semibold text-primary">{order.orderId}</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Badge className={statusColor(order.status)}>{order.status}</Badge>
+                    <span className="text-xs text-muted-foreground">{format(new Date(order.orderDate), 'dd MMM yyyy, hh:mm a')}</span>
+                  </div>
+                </div>
+                <div className="flex flex-col gap-2">
+                  {order.products.map(product => (
+                    <div key={product.id} className="flex items-center gap-4 border-b last:border-b-0 py-2">
+                      <img src={product.image} alt={product.name} className="w-14 h-14 rounded-lg object-cover border" />
+                      <div className="flex-1">
+                        <div className="font-semibold text-base">{product.name}</div>
+                        <div className="text-xs text-muted-foreground">Qty: {product.quantity}</div>
+                      </div>
+                      <div className="font-bold text-primary">${(product.price * product.quantity).toFixed(2)}</div>
+                    </div>
+                  ))}
+                </div>
+                <div className="flex justify-between items-center mt-3 text-sm">
+                  <span className="font-medium">Total: <span className="text-lg text-primary font-bold">${order.totalAmount.toFixed(2)}</span></span>
+                  {order.deliveryDate && order.status === 'Delivered' && (
+                    <span className="text-green-700">Delivered on {format(new Date(order.deliveryDate), 'dd MMM yyyy')}</span>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </Card>
       {/* Change Password Modal */}
       <Dialog open={showPasswordModal} onOpenChange={setShowPasswordModal}>
