@@ -132,7 +132,8 @@ const Orders = () => {
     const initialQuantities: Record<string, number> = {};
     order.products.forEach((p: Product) => { initialQuantities[p.id] = p.quantity; });
     setReorderQuantities(initialQuantities);
-    setReorderModal(order);
+    setSelectedOrder(null); // Close product details modal
+    setReorderModal(order); // Open reorder modal
   };
 
   // On confirm reorder: update cart and go to checkout
@@ -162,17 +163,17 @@ const Orders = () => {
   };
 
   return (
-    <div className="flex flex-col bg-gradient-to-br from-primary/10 to-background px-4 py-4 pb-12 min-h-[calc(100vh-64px)]">
+    <div className="flex flex-col bg-gradient-to-br from-primary/10 to-background px-2 sm:px-4 py-2 sm:py-4 pb-8 sm:pb-12 min-h-[calc(100vh-64px)]">
       <div className="w-full max-w-4xl mx-auto">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-primary mb-6 tracking-tight">My Orders</h1>
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-primary mb-4 sm:mb-6 tracking-tight">My Orders</h1>
         {userOrders.length === 0 ? (
-          <div className="text-center text-muted-foreground py-16">No orders found for this account.</div>
+          <div className="text-center text-muted-foreground py-12 sm:py-16">No orders found for this account.</div>
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3 sm:gap-4">
             {userOrders.map((order: Order) => (
               <button
                 key={order.orderId}
-                className="border rounded-xl p-4 bg-card/80 shadow-sm hover:shadow-md transition-shadow focus:outline-none w-full"
+                className="border rounded-lg sm:rounded-xl p-3 sm:p-4 bg-card/80 shadow-sm hover:shadow-md transition-shadow focus:outline-none w-full text-left"
                 onClick={() => setSelectedOrder(order)}
               >
                 <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-2">
@@ -185,10 +186,10 @@ const Orders = () => {
                     <span className="text-xs text-muted-foreground">{format(new Date(order.orderDate), 'dd MMM yyyy, hh:mm a')}</span>
                   </div>
                 </div>
-                <div className="flex flex-col gap-2">
+                <div className="flex flex-col gap-1.5 sm:gap-2">
                   {order.products.map((product: Product) => (
-                    <div key={product.id} className="flex items-center gap-3 border-b last:border-b-0 py-2">
-                      <img src={product.image} alt={product.name} className="w-12 h-12 rounded-lg object-cover border" />
+                    <div key={product.id} className="flex items-center gap-2 sm:gap-3 border-b last:border-b-0 py-1.5 sm:py-2">
+                      <img src={product.image} alt={product.name} className="w-10 h-10 sm:w-12 sm:h-12 rounded-lg object-cover border" />
                       <div className="flex-1 min-w-0">
                         <div className="font-semibold text-sm truncate">{product.name}</div>
                         <div className="text-xs text-muted-foreground">Qty: {product.quantity}</div>
@@ -209,32 +210,32 @@ const Orders = () => {
         )}
         {/* Order Details Modal */}
         <Dialog open={!!selectedOrder} onOpenChange={open => !open && setSelectedOrder(null)}>
-          <DialogContent className="max-w-[99vw] w-full sm:max-w-3xl p-3 sm:p-6 rounded-2xl mx-auto my-auto max-h-[50vh] h-[50vh] flex flex-col">
+          <DialogContent className="max-w-[95vw] w-full sm:max-w-3xl p-2 sm:p-3 md:p-6 rounded-xl sm:rounded-2xl mx-auto mt-16 sm:mt-20 mb-2 sm:mb-4 max-h-[90vh] sm:max-h-[80vh] md:max-h-[70vh] h-auto flex flex-col overflow-hidden z-[999999]">
             {selectedOrder && (
               <>
-                <DialogHeader>
+                <DialogHeader className="px-1 sticky top-0 bg-background z-10 pb-2 border-b">
                   <DialogTitle className="text-base sm:text-lg md:text-xl">Order Details</DialogTitle>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto space-y-4 pr-1 sm:pr-2">
+                <div className="flex-1 overflow-y-auto space-y-3 sm:space-y-4 pr-1 sm:pr-2 py-2">
                   {/* Address Section */}
-                  <div>
-                    <div className="flex items-center gap-2 text-sm sm:text-base font-semibold mb-1">
+                  <div className="bg-muted/10 rounded-lg p-2 sm:p-3">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base font-semibold mb-2">
                       <MapPin className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                       <span>Delivery Address</span>
                     </div>
-                    <div className="ml-6 sm:ml-7 text-xs sm:text-sm text-muted-foreground">
+                    <div className="ml-5 sm:ml-6 md:ml-7 text-xs sm:text-sm text-muted-foreground space-y-0.5">
                       <div><span className="font-medium text-foreground">{selectedOrder.address.name}</span></div>
                       <div>{selectedOrder.address.address}, {selectedOrder.address.city}, {selectedOrder.address.pincode}</div>
                       <div>Mobile: {selectedOrder.address.mobile}</div>
                     </div>
                   </div>
                   {/* Payment Section */}
-                  <div>
-                    <div className="flex items-center gap-2 text-sm sm:text-base font-semibold mb-1">
+                  <div className="bg-muted/10 rounded-lg p-2 sm:p-3">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base font-semibold mb-1">
                       <CreditCard className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                       <span>Payment Details</span>
                     </div>
-                    <div className="ml-6 sm:ml-7 text-xs sm:text-sm text-muted-foreground">
+                    <div className="ml-5 sm:ml-6 md:ml-7 text-xs sm:text-sm text-muted-foreground">
                       <div>Method: {paymentIcon(selectedOrder.payment.method)}{selectedOrder.payment.method}</div>
                       <div>Status: {paymentStatusIcon(selectedOrder.payment.status)}{selectedOrder.payment.status}</div>
                       {selectedOrder.payment.transactionId && (
@@ -243,12 +244,12 @@ const Orders = () => {
                     </div>
                   </div>
                   {/* Tracking Section */}
-                  <div>
-                    <div className="flex items-center gap-2 text-sm sm:text-base font-semibold mb-1">
+                  <div className="bg-muted/10 rounded-lg p-2 sm:p-3">
+                    <div className="flex items-center gap-1.5 sm:gap-2 text-sm sm:text-base font-semibold mb-1">
                       <Truck className="w-4 h-4 sm:w-5 sm:h-5 text-primary" />
                       <span>Tracking</span>
                     </div>
-                    <ol className="ml-6 sm:ml-7 border-l-2 border-primary/30 pl-3 sm:pl-4 text-xs sm:text-sm">
+                    <ol className="ml-5 sm:ml-6 md:ml-7 border-l-2 border-primary/30 pl-2 sm:pl-3 md:pl-4 text-xs sm:text-sm">
                       {selectedOrder.tracking.map((step: TrackingStep, idx: number) => (
                         <li key={idx} className="mb-2 flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-primary"></span>
@@ -259,15 +260,15 @@ const Orders = () => {
                     </ol>
                   </div>
                   {/* Products Section */}
-                  <div>
+                  <div className="bg-muted/10 rounded-lg p-2 sm:p-3">
                     <div className="font-semibold text-sm sm:text-base mb-1">Products:</div>
                     <div className="flex flex-col gap-2">
                       {selectedOrder.products.map((product: Product) => (
-                        <div key={product.id} className="flex items-center gap-2 sm:gap-3 border-b last:border-b-0 py-2">
+                        <div key={product.id} className="flex items-center gap-2 sm:gap-3 border-b last:border-b-0 py-2 bg-background rounded-lg px-2">
                           <img src={product.image} alt={product.name} className="w-12 h-12 sm:w-14 sm:h-14 rounded-lg object-cover border" />
-                          <div className="flex-1 min-w-0">
+                          <div className="flex-1 min-w-0 space-y-0.5">
                             <div className="font-semibold text-sm sm:text-base truncate">{product.name}</div>
-                            <div className="text-xs text-muted-foreground">Qty: {product.quantity}</div>
+                            <div className="text-xs sm:text-sm text-muted-foreground">Qty: {product.quantity}</div>
                           </div>
                           <div className="font-bold text-primary text-sm sm:text-base">${(product.price * product.quantity).toFixed(2)}</div>
                         </div>
@@ -276,22 +277,22 @@ const Orders = () => {
                   </div>
                 </div>
                 {/* Total */}
-                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2 pt-2 border-t text-sm sm:text-base font-semibold gap-1">
+                <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-2 pt-2 border-t text-sm sm:text-base font-semibold gap-1 px-1 sticky bottom-0 bg-background z-10">
                   <span>Total Amount:</span>
                   <span className="text-primary text-base sm:text-lg">${selectedOrder.totalAmount.toFixed(2)}</span>
                 </div>
                 {/* Footer */}
-                <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2 w-full">
-                  <Button variant="secondary" className="w-full sm:w-auto" onClick={() => handleDownloadInvoice(selectedOrder)} disabled={downloading}>
-                    <Download className="w-4 h-4 mr-1" /> {downloading ? 'Downloading...' : 'Invoice'}
+                <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-2 w-full px-1 sticky bottom-0 bg-background z-10 pt-2 border-t">
+                  <Button variant="secondary" size="lg" className="w-full sm:w-auto" onClick={() => handleDownloadInvoice(selectedOrder)} disabled={downloading}>
+                    <Download className="w-4 h-4 mr-2" /> {downloading ? 'Downloading...' : 'Invoice'}
                   </Button>
-                  <Button variant="outline" className="w-full sm:w-auto" onClick={() => handleSupport(selectedOrder)}>
-                    <HelpCircle className="w-4 h-4 mr-1" /> Support
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={() => handleSupport(selectedOrder)}>
+                    <HelpCircle className="w-4 h-4 mr-2" /> Support
                   </Button>
-                  <Button variant="default" className="w-full sm:w-auto" onClick={() => handleReorder(selectedOrder)}>
-                    <ShoppingBag className="w-4 h-4 mr-1" /> Reorder
+                  <Button variant="default" size="lg" className="w-full sm:w-auto" onClick={() => handleReorder(selectedOrder)}>
+                    <ShoppingBag className="w-4 h-4 mr-2" /> Reorder
                   </Button>
-                  <Button variant="outline" className="w-full sm:w-auto" onClick={() => setSelectedOrder(null)}>Close</Button>
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={() => setSelectedOrder(null)}>Close</Button>
                 </DialogFooter>
               </>
             )}
@@ -299,35 +300,38 @@ const Orders = () => {
         </Dialog>
         {/* Reorder Modal */}
         <Dialog open={!!reorderModal} onOpenChange={open => !open && setReorderModal(null)}>
-          <DialogContent className="max-w-[99vw] w-full sm:max-w-2xl p-4 sm:p-6 rounded-2xl mx-auto my-auto max-h-[50vh] h-[50vh] flex flex-col">
+          <DialogContent className="max-w-[95vw] w-full sm:max-w-2xl p-2 sm:p-3 md:p-6 rounded-xl sm:rounded-2xl mx-auto my-2 sm:my-4 max-h-[90vh] sm:max-h-[80vh] md:max-h-[70vh] h-auto flex flex-col overflow-hidden z-50">
             {reorderModal && (
               <>
-                <DialogHeader>
+                <DialogHeader className="px-1 sticky top-0 bg-background z-10 pb-2 border-b">
                   <DialogTitle className="text-base sm:text-lg md:text-xl">Reorder Items</DialogTitle>
                 </DialogHeader>
-                <div className="flex-1 overflow-y-auto flex flex-col gap-2 sm:gap-3 pr-1 sm:pr-2">
+                <div className="flex-1 overflow-y-auto flex flex-col gap-2 sm:gap-3 pr-1 sm:pr-2 py-2">
                   {reorderModal.products.map((product: Product) => (
-                    <div key={product.id} className="flex items-center gap-3 sm:gap-4 border-b last:border-b-0 py-2">
-                      <img src={product.image} alt={product.name} className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg object-cover border" />
-                      <div className="flex-1 min-w-0">
+                    <div key={product.id} className="flex items-center gap-2 sm:gap-3 md:gap-4 border-b last:border-b-0 py-2 px-2 bg-muted/10 rounded-lg">
+                      <img src={product.image} alt={product.name} className="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 rounded-lg object-cover border" />
+                      <div className="flex-1 min-w-0 space-y-1">
                         <div className="font-semibold text-sm sm:text-base truncate">{product.name}</div>
+                        <div className="flex items-center gap-2">
+                          <label className="text-xs sm:text-sm text-muted-foreground">Quantity:</label>
+                          <input
+                            type="number"
+                            min="1"
+                            max="99"
+                            value={reorderQuantities[product.id]}
+                            onChange={e => setReorderQuantities(q => ({ ...q, [product.id]: Math.max(1, Math.min(99, Number(e.target.value))) }))}
+                            className="w-16 sm:w-20 h-8 sm:h-10 border rounded-md px-2 py-1 text-center text-sm sm:text-base focus:outline-none focus:ring-2 focus:ring-primary/50 bg-background"
+                          />
+                        </div>
                       </div>
-                      <input
-                        type="number"
-                        min="1"
-                        max="99"
-                        value={reorderQuantities[product.id]}
-                        onChange={e => setReorderQuantities(q => ({ ...q, [product.id]: Math.max(1, Math.min(99, Number(e.target.value))) }))}
-                        className="w-12 sm:w-16 border rounded-md px-2 py-1 text-center"
-                      />
                     </div>
                   ))}
                 </div>
-                <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 w-full">
-                  <Button variant="default" className="w-full sm:w-auto" onClick={handleConfirmReorder}>
-                    <ShoppingBag className="w-4 h-4 mr-1" /> Proceed to Checkout
+                <DialogFooter className="flex flex-col sm:flex-row gap-2 mt-4 w-full px-1 sticky bottom-0 bg-background z-10 pt-2 border-t">
+                  <Button variant="default" size="lg" className="w-full sm:w-auto" onClick={handleConfirmReorder}>
+                    <ShoppingBag className="w-4 h-4 mr-2" /> Proceed to Checkout
                   </Button>
-                  <Button variant="outline" className="w-full sm:w-auto" onClick={() => setReorderModal(null)}>Cancel</Button>
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto" onClick={() => setReorderModal(null)}>Cancel</Button>
                 </DialogFooter>
               </>
             )}
