@@ -252,6 +252,9 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             <NavLink to="/about" className={navLinkClass}>
             About
             </NavLink>
+            <NavLink to="/rewards" className={navLinkClass}>
+            Rewards
+            </NavLink>
         </nav>
 
         {/* Search Bar - Desktop Only */}
@@ -408,15 +411,12 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                   <NavLink to="/orders" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
                     <Box className="w-5 h-5 mr-3" /> Orders
                   </NavLink>
+                  <NavLink to="/rewards" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
+                    <Gift className="w-5 h-5 mr-3" /> Rewards
+                  </NavLink>
                   <NavLink to="/wishlist" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
                     <Heart className="w-5 h-5 mr-3" /> Wishlist
                   </NavLink>
-                  <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
-                    <BadgePercent className="w-5 h-5 mr-3" /> Rewards
-                  </a>
-                  <a href="#" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors">
-                    <Gift className="w-5 h-5 mr-3" /> Gift Cards
-                  </a>
                 </div>
               </div>,
               document.body
