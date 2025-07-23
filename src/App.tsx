@@ -22,6 +22,8 @@ import { AiChat } from '@/components/AiChat';
 import Orders from './pages/Orders';
 import Wishlist from './pages/Wishlist';
 import Rewards from './pages/Rewards';
+import Login from './pages/Login';
+import Signup from './pages/Signup';
 
 const queryClient = new QueryClient();
 
@@ -49,6 +51,8 @@ const App = () => {
             <Route path="/orders" element={<Orders />} />
             <Route path="/wishlist" element={<Wishlist />} />
             <Route path="/rewards" element={<Rewards />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<Signup />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

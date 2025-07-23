@@ -402,7 +402,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               >
                 <div className="flex items-center justify-between px-4 py-3 border-b">
                   <span className="font-medium text-base">New customer?</span>
-                  <a href="#" className="text-primary font-semibold hover:underline">Sign Up</a>
+                  <NavLink to="/signup" className="text-primary font-semibold hover:underline">Sign Up</NavLink>
                 </div>
                 <div className="py-2">
                   <NavLink to="/profile" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
@@ -417,6 +417,11 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                   <NavLink to="/wishlist" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
                     <Heart className="w-5 h-5 mr-3" /> Wishlist
                   </NavLink>
+                  <div className="border-t pt-1 mt-1">
+                    <NavLink to="/login" className="flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors font-medium">
+                      <User className="w-5 h-5 mr-3" /> Sign In
+                    </NavLink>
+                  </div>
                 </div>
               </div>,
               document.body
