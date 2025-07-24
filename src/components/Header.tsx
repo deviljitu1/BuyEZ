@@ -638,7 +638,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                 }
               }}
               onMouseLeave={() => cat.dropdown && setOpenDropdown(null)}
-              onClick={() => { if (!cat.dropdown) window.location.href = cat.link; }}
+              onClick={() => { if (!cat.dropdown) navigate(cat.link); }}
             >
               <img src={cat.icon} alt={cat.name} className="w-10 h-10 mb-1 z-10" />
               <span className="text-xs font-semibold flex items-center z-10">
