@@ -24,6 +24,7 @@ import Wishlist from './pages/Wishlist';
 import Rewards from './pages/Rewards';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
+import Grocery from './pages/Grocery';
 
 const queryClient = new QueryClient();
 
@@ -53,6 +54,7 @@ const App = () => {
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
+            <Route path="/grocery" element={<Grocery />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
