@@ -213,7 +213,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
 
   const categories = [
     { name: 'Grocery', icon: 'https://img.icons8.com/color/48/000000/shopping-basket-2.png', link: '/grocery' },
-    { name: 'Mobiles', icon: 'https://img.icons8.com/color/48/000000/smartphone-tablet.png', link: '/categories?cat=mobiles' },
+    { name: 'Mobiles', icon: 'https://img.icons8.com/color/48/000000/smartphone-tablet.png', link: '/mobiles' },
     { name: 'Fashion', icon: 'https://cdn-icons-png.flaticon.com/512/892/892458.png', link: '/categories?cat=fashion', dropdown: ['Men', 'Women', 'Kids', 'Footwear', 'Accessories'] },
     { name: 'Electronics', icon: 'https://img.icons8.com/color/48/000000/laptop.png', link: '/categories?cat=electronics', dropdown: ['Mobiles', 'Laptops', 'Cameras', 'Audio', 'Wearables'] },
     { name: 'Home & Furniture', icon: 'https://img.icons8.com/color/48/000000/sofa.png', link: '/categories?cat=home', dropdown: ['Kitchen', 'Furniture', 'Decor', 'Tools'] },
@@ -245,9 +245,6 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             </NavLink>
             <NavLink to="/products" className={navLinkClass}>
             Products
-            </NavLink>
-            <NavLink to="/categories" className={navLinkClass}>
-            Categories
             </NavLink>
             <NavLink to="/about" className={navLinkClass}>
             About
