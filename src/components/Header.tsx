@@ -252,9 +252,6 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             <NavLink to="/about" className={navLinkClass}>
             About
             </NavLink>
-            <NavLink to="/grocery" className={navLinkClass}>
-            Grocery
-            </NavLink>
             <NavLink to="/rewards" className={navLinkClass}>
             Rewards
             </NavLink>
