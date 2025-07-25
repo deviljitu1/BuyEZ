@@ -8,18 +8,18 @@ import botImage from '../assets/bot.png';
 // --- API Configuration ---
 const API_CONFIG = {
   openRouter: {
-    key: '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',
+    key: import.meta.env.VITE_OPENROUTER_API_KEY || 'your-openrouter-key-here',
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'gryphe/mythomax-l2-13b', // Free model
+    model: 'mistralai/mistral-7b-instruct', // Free and reliable model
     headers: {
-      'Authorization': 'Bearer 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',
+      'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY || 'your-openrouter-key-here'}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : 'https://example.com',
       'X-Title': 'Shopping Assistant'
     }
   },
   gemini: {
-    key: 'AIzaSyCR2qkH4DXw4jBXbT94YnAOgwaSD6r-rBI',
+    key: import.meta.env.VITE_GEMINI_API_KEY || 'your-gemini-key-here',
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
   }
 };
@@ -27,7 +27,8 @@ const API_CONFIG = {
 async function fetchAIResponse(prompt: string): Promise<string> {
   // Try OpenRouter first
   try {
-    const openRouterResponse = await fetch(API_CONFIG.openRouter.endpoint, {
+    console.log('Attempting OpenRouter request...');
+    const response = await fetch(API_CONFIG.openRouter.endpoint, {
       method: 'POST',
       headers: API_CONFIG.openRouter.headers,
       body: JSON.stringify({
@@ -36,43 +37,46 @@ async function fetchAIResponse(prompt: string): Promise<string> {
       }),
     });
 
-    if (openRouterResponse.ok) {
-      const data = await openRouterResponse.json();
-      if (data.choices?.[0]?.message?.content) {
-        return data.choices[0].message.content.trim();
-      }
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('OpenRouter API error:', errorData);
+      throw new Error(`OpenRouter error: ${response.status} ${response.statusText}`);
     }
+
+    const data = await response.json();
+    return data.choices?.[0]?.message?.content?.trim() || "I didn't get a response. Can you try again?";
   } catch (error) {
-    console.error('OpenRouter error:', error);
-  }
+    console.error('OpenRouter failed:', error);
+    
+    // Fallback to Gemini
+    try {
+      console.log('Attempting Gemini request...');
+      const response = await fetch(
+        `${API_CONFIG.gemini.endpoint}?key=${API_CONFIG.gemini.key}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{ text: prompt }]
+            }]
+          }),
+        }
+      );
 
-  // Fallback to Gemini
-  try {
-    const geminiResponse = await fetch(
-      `${API_CONFIG.gemini.endpoint}?key=${API_CONFIG.gemini.key}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{ text: prompt }]
-          }]
-        }),
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Gemini API error:', errorData);
+        throw new Error(`Gemini error: ${response.status} ${response.statusText}`);
       }
-    );
 
-    if (geminiResponse.ok) {
-      const data = await geminiResponse.json();
-      if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
-        return data.candidates[0].content.parts[0].text.trim();
-      }
+      const data = await response.json();
+      return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "I didn't get a response. Can you try again?";
+    } catch (geminiError) {
+      console.error('Gemini failed:', geminiError);
+      return "I'm having trouble connecting to my knowledge sources. Maybe try asking in a different way?";
     }
-  } catch (error) {
-    console.error('Gemini error:', error);
   }
-
-  // Final fallback
-  return "I'm having some technical difficulties. Could you try asking again in a different way?";
 }
 
 export const AiChat = () => {
@@ -97,7 +101,7 @@ export const AiChat = () => {
     } catch (error) {
       console.error('Failed to get AI response:', error);
       setMessages(prev => [...prev, { 
-        text: "Sorry, I'm experiencing technical difficulties. Please try again later.", 
+        text: "Sorry, I'm having technical issues. Please try again in a moment.", 
         isUser: false 
       }]);
     } finally {
