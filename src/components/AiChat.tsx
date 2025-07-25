@@ -8,18 +8,18 @@ import botImage from '../assets/bot.png';
 // --- API Configuration ---
 const API_CONFIG = {
   openRouter: {
-    key: import.meta.env.VITE_OPENROUTER_API_KEY || 'your-openrouter-key-here',
+    key: import.meta.env.VITE_OPENROUTER_API_KEY || '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',
     endpoint: 'https://openrouter.ai/api/v1/chat/completions',
     model: 'mistralai/mistral-7b-instruct', // Free and reliable model
     headers: {
-      'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY || 'your-openrouter-key-here'}`,
+      'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY || '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'}`,
       'Content-Type': 'application/json',
       'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : 'https://example.com',
       'X-Title': 'Shopping Assistant'
     }
   },
   gemini: {
-    key: import.meta.env.VITE_GEMINI_API_KEY || 'your-gemini-key-here',
+    key: import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCR2qkH4DXw4jBXbT94YnAOgwaSD6r-rBI',
     endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
   }
 };
