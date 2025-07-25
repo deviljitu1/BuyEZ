@@ -1,17 +1,14 @@
 import { ProductGrid } from '@/components/ProductGrid';
 import { mockProducts } from '@/data/mockProducts';
-import { Product } from '@/types/product';
 import { useState } from 'react';
 import { Leaf, Truck, Award } from 'lucide-react';
 import { useWishlist } from '@/hooks/useWishlist';
+import { useCart } from '@/hooks/useCart';
 
-type GroceryProps = {
-  addToCart: (product: Product) => void;
-};
-
-const Grocery = ({ addToCart }: GroceryProps) => {
+const Grocery = () => {
   const [sortBy, setSortBy] = useState('popularity');
   const { addToWishlist, isInWishlist } = useWishlist();
+  const { addToCart } = useCart();
 
   // Filter products for grocery category
   const groceryProducts = mockProducts.filter(product => 
