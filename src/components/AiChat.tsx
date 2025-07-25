@@ -19,10 +19,12 @@ async function fetchOpenRouterResponse(prompt: string): Promise<string | null> {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'openai/gpt-3.5-turbo', // Use a free model
+        model: 'openai/gpt-3.5-turbo',
         messages: [{ role: 'user', content: prompt }],
       }),
     });
+    // If OpenRouter returns 404 or error, fallback
+    if (!res.ok) return null;
     const data = await res.json();
     if (data.choices && data.choices[0]?.message?.content) {
       return data.choices[0].message.content.trim();
@@ -45,6 +47,8 @@ async function fetchGeminiResponse(prompt: string): Promise<string | null> {
         }),
       }
     );
+    // If Gemini returns 404 or error, fallback
+    if (!res.ok) return null;
     const data = await res.json();
     if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
       return data.candidates[0].content.parts[0].text.trim();
