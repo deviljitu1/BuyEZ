@@ -17,20 +17,24 @@ async function fetchOpenRouterResponse(prompt: string): Promise<string | null> {
       headers: {
         'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
         'Content-Type': 'application/json',
+        'HTTP-Referer': window.location.href, // Required for free models
+        'X-Title': 'Shopping Assistant' // Optional but recommended
       },
       body: JSON.stringify({
-        model: 'openai/gpt-3.5-turbo',
+        model: 'gryphe/mythomax-l2-13b', // Free model
         messages: [{ role: 'user', content: prompt }],
       }),
     });
-    // If OpenRouter returns 404 or error, fallback
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.choices && data.choices[0]?.message?.content) {
-      return data.choices[0].message.content.trim();
+
+    if (!res.ok) {
+      console.error('OpenRouter error:', await res.text());
+      return null;
     }
-    return null;
-  } catch {
+
+    const data = await res.json();
+    return data.choices?.[0]?.message?.content?.trim() || null;
+  } catch (error) {
+    console.error('OpenRouter fetch error:', error);
     return null;
   }
 }
@@ -43,18 +47,22 @@ async function fetchGeminiResponse(prompt: string): Promise<string | null> {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
+          contents: [{
+            parts: [{ text: prompt }]
+          }]
         }),
       }
     );
-    // If Gemini returns 404 or error, fallback
-    if (!res.ok) return null;
-    const data = await res.json();
-    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-      return data.candidates[0].content.parts[0].text.trim();
+
+    if (!res.ok) {
+      console.error('Gemini error:', await res.text());
+      return null;
     }
-    return null;
-  } catch {
+
+    const data = await res.json();
+    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
+  } catch (error) {
+    console.error('Gemini fetch error:', error);
     return null;
   }
 }
@@ -68,16 +76,32 @@ export const AiChat = () => {
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async (userInput: string) => {
+    // Add user message immediately
     setMessages(prev => [...prev, { text: userInput, isUser: true }]);
     setLoading(true);
+    setInput('');
 
-    // Try OpenRouter first, fallback to Gemini if fails
-    let aiResponse = await fetchOpenRouterResponse(userInput);
-    if (!aiResponse) {
-      aiResponse = await fetchGeminiResponse(userInput);
+    let aiResponse: string | null = null;
+    
+    // Try OpenRouter first
+    try {
+      aiResponse = await fetchOpenRouterResponse(userInput);
+    } catch (error) {
+      console.error('OpenRouter failed:', error);
     }
+
+    // If OpenRouter fails, try Gemini
     if (!aiResponse) {
-      aiResponse = "Sorry, I'm unable to respond right now. Please try again later.";
+      try {
+        aiResponse = await fetchGeminiResponse(userInput);
+      } catch (error) {
+        console.error('Gemini failed:', error);
+      }
+    }
+
+    // Fallback if both fail
+    if (!aiResponse) {
+      aiResponse = "Sorry, I'm having trouble responding right now. Please try again later.";
     }
 
     setMessages(prev => [...prev, { text: aiResponse, isUser: false }]);
@@ -88,7 +112,6 @@ export const AiChat = () => {
     e.preventDefault();
     if (!input.trim() || loading) return;
     sendMessage(input.trim());
-    setInput('');
   };
 
   return (
@@ -172,7 +195,12 @@ export const AiChat = () => {
                 className="flex-1 text-sm"
                 disabled={loading}
               />
-              <Button type="submit" size="icon" className="h-8 w-8" disabled={loading || !input.trim()}>
+              <Button 
+                type="submit" 
+                size="icon" 
+                className="h-8 w-8" 
+                disabled={loading || !input.trim()}
+              >
                 <Send className="w-4 h-4" />
               </Button>
             </div>
