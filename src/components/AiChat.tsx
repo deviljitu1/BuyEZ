@@ -5,44 +5,51 @@ import { Input } from '@/components/ui/input';
 import { createPortal } from 'react-dom';
 import botImage from '../assets/bot.png';
 
-// --- Add your API keys here ---
-const GEMINI_API_KEY = 'AIzaSyCR2qkH4DXw4jBXbT94YnAOgwaSD6r-rBI';
-const OPENROUTER_API_KEY = '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';
-// ------------------------------
+// --- API Configuration ---
+const API_CONFIG = {
+  openRouter: {
+    key: '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',
+    endpoint: 'https://openrouter.ai/api/v1/chat/completions',
+    model: 'gryphe/mythomax-l2-13b', // Free model
+    headers: {
+      'Authorization': 'Bearer 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',
+      'Content-Type': 'application/json',
+      'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : 'https://example.com',
+      'X-Title': 'Shopping Assistant'
+    }
+  },
+  gemini: {
+    key: 'AIzaSyCR2qkH4DXw4jBXbT94YnAOgwaSD6r-rBI',
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
+  }
+};
 
-async function fetchOpenRouterResponse(prompt: string): Promise<string | null> {
+async function fetchAIResponse(prompt: string): Promise<string> {
+  // Try OpenRouter first
   try {
-    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+    const openRouterResponse = await fetch(API_CONFIG.openRouter.endpoint, {
       method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
-        'Content-Type': 'application/json',
-        'HTTP-Referer': window.location.href, // Required for free models
-        'X-Title': 'Shopping Assistant' // Optional but recommended
-      },
+      headers: API_CONFIG.openRouter.headers,
       body: JSON.stringify({
-        model: 'gryphe/mythomax-l2-13b', // Free model
+        model: API_CONFIG.openRouter.model,
         messages: [{ role: 'user', content: prompt }],
       }),
     });
 
-    if (!res.ok) {
-      console.error('OpenRouter error:', await res.text());
-      return null;
+    if (openRouterResponse.ok) {
+      const data = await openRouterResponse.json();
+      if (data.choices?.[0]?.message?.content) {
+        return data.choices[0].message.content.trim();
+      }
     }
-
-    const data = await res.json();
-    return data.choices?.[0]?.message?.content?.trim() || null;
   } catch (error) {
-    console.error('OpenRouter fetch error:', error);
-    return null;
+    console.error('OpenRouter error:', error);
   }
-}
 
-async function fetchGeminiResponse(prompt: string): Promise<string | null> {
+  // Fallback to Gemini
   try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+    const geminiResponse = await fetch(
+      `${API_CONFIG.gemini.endpoint}?key=${API_CONFIG.gemini.key}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -54,17 +61,18 @@ async function fetchGeminiResponse(prompt: string): Promise<string | null> {
       }
     );
 
-    if (!res.ok) {
-      console.error('Gemini error:', await res.text());
-      return null;
+    if (geminiResponse.ok) {
+      const data = await geminiResponse.json();
+      if (data.candidates?.[0]?.content?.parts?.[0]?.text) {
+        return data.candidates[0].content.parts[0].text.trim();
+      }
     }
-
-    const data = await res.json();
-    return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || null;
   } catch (error) {
-    console.error('Gemini fetch error:', error);
-    return null;
+    console.error('Gemini error:', error);
   }
+
+  // Final fallback
+  return "I'm having some technical difficulties. Could you try asking again in a different way?";
 }
 
 export const AiChat = () => {
@@ -76,41 +84,29 @@ export const AiChat = () => {
   const [loading, setLoading] = useState(false);
 
   const sendMessage = async (userInput: string) => {
+    if (!userInput.trim()) return;
+
     // Add user message immediately
     setMessages(prev => [...prev, { text: userInput, isUser: true }]);
     setLoading(true);
     setInput('');
 
-    let aiResponse: string | null = null;
-    
-    // Try OpenRouter first
     try {
-      aiResponse = await fetchOpenRouterResponse(userInput);
+      const aiResponse = await fetchAIResponse(userInput);
+      setMessages(prev => [...prev, { text: aiResponse, isUser: false }]);
     } catch (error) {
-      console.error('OpenRouter failed:', error);
+      console.error('Failed to get AI response:', error);
+      setMessages(prev => [...prev, { 
+        text: "Sorry, I'm experiencing technical difficulties. Please try again later.", 
+        isUser: false 
+      }]);
+    } finally {
+      setLoading(false);
     }
-
-    // If OpenRouter fails, try Gemini
-    if (!aiResponse) {
-      try {
-        aiResponse = await fetchGeminiResponse(userInput);
-      } catch (error) {
-        console.error('Gemini failed:', error);
-      }
-    }
-
-    // Fallback if both fail
-    if (!aiResponse) {
-      aiResponse = "Sorry, I'm having trouble responding right now. Please try again later.";
-    }
-
-    setMessages(prev => [...prev, { text: aiResponse, isUser: false }]);
-    setLoading(false);
   };
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim() || loading) return;
     sendMessage(input.trim());
   };
 
