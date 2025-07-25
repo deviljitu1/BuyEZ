@@ -20,7 +20,7 @@ const API_CONFIG = {
   },
   gemini: {
     key: import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCR2qkH4DXw4jBXbT94YnAOgwaSD6r-rBI',
-    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent'
+    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
   }
 };
 
