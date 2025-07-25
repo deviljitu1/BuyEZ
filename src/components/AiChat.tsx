@@ -5,28 +5,85 @@ import { Input } from '@/components/ui/input';
 import { createPortal } from 'react-dom';
 import botImage from '../assets/bot.png';
 
+// --- Add your API keys here ---
+const GEMINI_API_KEY = 'AIzaSyCR2qkH4DXw4jBXbT94YnAOgwaSD6r-rBI';
+const OPENROUTER_API_KEY = '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';
+// ------------------------------
+
+async function fetchOpenRouterResponse(prompt: string): Promise<string | null> {
+  try {
+    const res = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENROUTER_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'openai/gpt-3.5-turbo', // Use a free model
+        messages: [{ role: 'user', content: prompt }],
+      }),
+    });
+    const data = await res.json();
+    if (data.choices && data.choices[0]?.message?.content) {
+      return data.choices[0].message.content.trim();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+async function fetchGeminiResponse(prompt: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${GEMINI_API_KEY}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      }
+    );
+    const data = await res.json();
+    if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+      return data.candidates[0].content.parts[0].text.trim();
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
 export const AiChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([
     { text: "Hi! I'm your shopping assistant. How can I help you today?", isUser: false }
   ]);
   const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const sendMessage = async (userInput: string) => {
+    setMessages(prev => [...prev, { text: userInput, isUser: true }]);
+    setLoading(true);
+
+    // Try OpenRouter first, fallback to Gemini if fails
+    let aiResponse = await fetchOpenRouterResponse(userInput);
+    if (!aiResponse) {
+      aiResponse = await fetchGeminiResponse(userInput);
+    }
+    if (!aiResponse) {
+      aiResponse = "Sorry, I'm unable to respond right now. Please try again later.";
+    }
+
+    setMessages(prev => [...prev, { text: aiResponse, isUser: false }]);
+    setLoading(false);
+  };
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!input.trim()) return;
-
-    // Add user message
-    setMessages(prev => [...prev, { text: input, isUser: true }]);
-
-    // Simulate AI response
-    setTimeout(() => {
-      setMessages(prev => [...prev, {
-        text: "Thanks for your message! I'm a demo AI assistant. In the real implementation, I would provide helpful responses about products, orders, and shopping assistance.",
-        isUser: false
-      }]);
-    }, 1000);
-
+    if (!input.trim() || loading) return;
+    sendMessage(input.trim());
     setInput('');
   };
 
@@ -92,6 +149,13 @@ export const AiChat = () => {
                 </div>
               </div>
             ))}
+            {loading && (
+              <div className="flex justify-start">
+                <div className="max-w-[85%] rounded-xl px-3 py-2 text-sm bg-muted opacity-70">
+                  Typing...
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Input */}
@@ -102,8 +166,9 @@ export const AiChat = () => {
                 onChange={e => setInput(e.target.value)}
                 placeholder="Type your message..."
                 className="flex-1 text-sm"
+                disabled={loading}
               />
-              <Button type="submit" size="icon" className="h-8 w-8">
+              <Button type="submit" size="icon" className="h-8 w-8" disabled={loading || !input.trim()}>
                 <Send className="w-4 h-4" />
               </Button>
             </div>
@@ -113,4 +178,4 @@ export const AiChat = () => {
       )}
     </>
   );
-}; 
+};
