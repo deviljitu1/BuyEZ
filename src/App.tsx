@@ -26,6 +26,7 @@ import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Grocery from './pages/Grocery';
 import Mobiles from './pages/Mobiles';
+import Fashion from './pages/Fashion';
 
 const queryClient = new QueryClient();
 
@@ -55,8 +56,9 @@ const App = () => {
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/grocery" element={<Grocery />} />
-            <Route path="/mobiles" element={<Mobiles />} />
+            <Route path="/grocery" element={<Grocery addToCart={addToCart} />} />
+            <Route path="/mobiles" element={<Mobiles addToCart={addToCart} />} />
+            <Route path="/fashion" element={<Fashion addToCart={addToCart} />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
