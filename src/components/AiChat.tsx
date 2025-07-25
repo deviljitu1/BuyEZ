@@ -5,113 +5,29 @@ import { Input } from '@/components/ui/input';
 import { createPortal } from 'react-dom';
 import botImage from '../assets/bot.png';
 
-// --- API Configuration ---
-const API_CONFIG = {
-  openRouter: {
-    key: import.meta.env.VITE_OPENROUTER_API_KEY || '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',
-    endpoint: 'https://openrouter.ai/api/v1/chat/completions',
-    model: 'mistralai/mistral-7b-instruct', // Free and reliable model
-    headers: {
-      'Authorization': `Bearer ${import.meta.env.VITE_OPENROUTER_API_KEY || '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'}`,
-      'Content-Type': 'application/json',
-      'HTTP-Referer': typeof window !== 'undefined' ? window.location.href : 'https://example.com',
-      'X-Title': 'Shopping Assistant'
-    }
-  },
-  gemini: {
-    key: import.meta.env.VITE_GEMINI_API_KEY || 'AIzaSyCR2qkH4DXw4jBXbT94YnAOgwaSD6r-rBI',
-    endpoint: 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent'
-  }
-};
-
-async function fetchAIResponse(prompt: string): Promise<string> {
-  // Try OpenRouter first
-  try {
-    console.log('Attempting OpenRouter request...');
-    const response = await fetch(API_CONFIG.openRouter.endpoint, {
-      method: 'POST',
-      headers: API_CONFIG.openRouter.headers,
-      body: JSON.stringify({
-        model: API_CONFIG.openRouter.model,
-        messages: [{ role: 'user', content: prompt }],
-      }),
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('OpenRouter API error:', errorData);
-      throw new Error(`OpenRouter error: ${response.status} ${response.statusText}`);
-    }
-
-    const data = await response.json();
-    return data.choices?.[0]?.message?.content?.trim() || "I didn't get a response. Can you try again?";
-  } catch (error) {
-    console.error('OpenRouter failed:', error);
-    
-    // Fallback to Gemini
-    try {
-      console.log('Attempting Gemini request...');
-      const response = await fetch(
-        `${API_CONFIG.gemini.endpoint}?key=${API_CONFIG.gemini.key}`,
-        {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{ text: prompt }]
-            }]
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        console.error('Gemini API error:', errorData);
-        throw new Error(`Gemini error: ${response.status} ${response.statusText}`);
-      }
-
-      const data = await response.json();
-      return data.candidates?.[0]?.content?.parts?.[0]?.text?.trim() || "I didn't get a response. Can you try again?";
-    } catch (geminiError) {
-      console.error('Gemini failed:', geminiError);
-      return "I'm having trouble connecting to my knowledge sources. Maybe try asking in a different way?";
-    }
-  }
-}
-
 export const AiChat = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Array<{ text: string; isUser: boolean }>>([
     { text: "Hi! I'm your shopping assistant. How can I help you today?", isUser: false }
   ]);
   const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-
-  const sendMessage = async (userInput: string) => {
-    if (!userInput.trim()) return;
-
-    // Add user message immediately
-    setMessages(prev => [...prev, { text: userInput, isUser: true }]);
-    setLoading(true);
-    setInput('');
-
-    try {
-      const aiResponse = await fetchAIResponse(userInput);
-      setMessages(prev => [...prev, { text: aiResponse, isUser: false }]);
-    } catch (error) {
-      console.error('Failed to get AI response:', error);
-      setMessages(prev => [...prev, { 
-        text: "Sorry, I'm having technical issues. Please try again in a moment.", 
-        isUser: false 
-      }]);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    sendMessage(input.trim());
+    if (!input.trim()) return;
+
+    // Add user message
+    setMessages(prev => [...prev, { text: input, isUser: true }]);
+
+    // Simulate AI response
+    setTimeout(() => {
+      setMessages(prev => [...prev, {
+        text: "Thanks for your message! I'm a demo AI assistant. In the real implementation, I would provide helpful responses about products, orders, and shopping assistance.",
+        isUser: false
+      }]);
+    }, 1000);
+
+    setInput('');
   };
 
   return (
@@ -176,13 +92,6 @@ export const AiChat = () => {
                 </div>
               </div>
             ))}
-            {loading && (
-              <div className="flex justify-start">
-                <div className="max-w-[85%] rounded-xl px-3 py-2 text-sm bg-muted opacity-70">
-                  Typing...
-                </div>
-              </div>
-            )}
           </div>
 
           {/* Input */}
@@ -193,14 +102,8 @@ export const AiChat = () => {
                 onChange={e => setInput(e.target.value)}
                 placeholder="Type your message..."
                 className="flex-1 text-sm"
-                disabled={loading}
               />
-              <Button 
-                type="submit" 
-                size="icon" 
-                className="h-8 w-8" 
-                disabled={loading || !input.trim()}
-              >
+              <Button type="submit" size="icon" className="h-8 w-8">
                 <Send className="w-4 h-4" />
               </Button>
             </div>
@@ -210,4 +113,4 @@ export const AiChat = () => {
       )}
     </>
   );
-};
+}; 
