@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProductGrid } from '@/components/ProductGrid';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -193,6 +193,26 @@ const Fashion = () => {
   const [priceFilter, setPriceFilter] = useState('all');
   const { addToCart } = useCart();
 
+  // Handle hash navigation
+  useEffect(() => {
+    const handleHashChange = () => {
+      const hash = window.location.hash.replace('#', '');
+      if (hash && Object.keys(fashionProducts).includes(hash)) {
+        setActiveTab(hash);
+      }
+    };
+
+    // Set initial tab from hash
+    handleHashChange();
+
+    // Listen for hash changes
+    window.addEventListener('hashchange', handleHashChange);
+    
+    return () => {
+      window.removeEventListener('hashchange', handleHashChange);
+    };
+  }, []);
+
   const getAllProducts = () => {
     return Object.values(fashionProducts).flat();
   };
@@ -321,7 +341,7 @@ const Fashion = () => {
             </TabsList>
 
             {Object.keys(fashionProducts).map((category) => (
-              <TabsContent key={category} value={category} className="mt-8">
+              <TabsContent key={category} value={category} className="mt-8" id={category}>
                 <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
                   {getFilteredProducts().map((product, index) => (
                     <div
