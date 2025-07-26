@@ -260,33 +260,6 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             <NavLink to="/about" className={navLinkClass}>
             About
             </NavLink>
-            <div className="relative group">
-              <NavLink to="/fashion" className={navLinkClass}>
-                Fashion
-              </NavLink>
-              <div className="absolute top-full left-0 mt-2 w-48 bg-white shadow-lg rounded-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
-                <div className="py-2">
-                  <NavLink to="/fashion" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                    All Fashion
-                  </NavLink>
-                  <NavLink to="/fashion#men" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                    Men
-                  </NavLink>
-                  <NavLink to="/fashion#women" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                    Women
-                  </NavLink>
-                  <NavLink to="/fashion#kids" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                    Kids
-                  </NavLink>
-                  <NavLink to="/fashion#footwear" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                    Footwear
-                  </NavLink>
-                  <NavLink to="/fashion#accessories" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
-                    Accessories
-                  </NavLink>
-                </div>
-              </div>
-            </div>
             <NavLink to="/rewards" className={navLinkClass}>
             Rewards
             </NavLink>
@@ -691,13 +664,12 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
               {/* Dropdown */}
               {cat.dropdown && openDropdown === cat.name && (
                 <div
-                  className="fixed bg-white shadow-lg rounded-lg border py-2 min-w-[140px] animate-fade-in"
+                  className="fixed bg-background shadow-xl rounded-lg border py-2 min-w-[140px] animate-fade-in z-[100001]"
                   style={{
                     left: dropdownPos?.left || 0,
                     top: dropdownPos?.top || 0,
                     transform: 'translateX(-50%)',
                     minWidth: 160,
-                    zIndex: 100001
                   }}
                 >
                   {cat.dropdown.map(sub => (
