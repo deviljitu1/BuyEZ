@@ -214,7 +214,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const categories = [
     { name: 'Grocery', icon: 'https://img.icons8.com/color/48/000000/shopping-basket-2.png', link: '/grocery' },
     { name: 'Mobiles', icon: 'https://img.icons8.com/color/48/000000/smartphone-tablet.png', link: '/mobiles' },
-    { name: 'Fashion', icon: 'https://cdn-icons-png.flaticon.com/512/892/892458.png', link: '/categories?cat=fashion', dropdown: ['Men', 'Women', 'Kids', 'Footwear', 'Accessories'] },
+    { name: 'Fashion', icon: 'https://cdn-icons-png.flaticon.com/512/892/892458.png', link: '/fashion', dropdown: ['Men', 'Women', 'Kids', 'Footwear', 'Accessories'] },
     { name: 'Electronics', icon: 'https://img.icons8.com/color/48/000000/laptop.png', link: '/categories?cat=electronics', dropdown: ['Mobiles', 'Laptops', 'Cameras', 'Audio', 'Wearables'] },
     { name: 'Home & Furniture', icon: 'https://img.icons8.com/color/48/000000/sofa.png', link: '/categories?cat=home', dropdown: ['Kitchen', 'Furniture', 'Decor', 'Tools'] },
     { name: 'Appliances', icon: 'https://img.icons8.com/color/48/000000/washing-machine.png', link: '/categories?cat=appliances' },
@@ -249,6 +249,33 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
             <NavLink to="/about" className={navLinkClass}>
             About
             </NavLink>
+            <div className="relative group">
+              <NavLink to="/fashion" className={navLinkClass}>
+                Fashion
+              </NavLink>
+              <div className="absolute top-full left-0 mt-2 w-48 bg-white shadow-lg rounded-lg border opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
+                <div className="py-2">
+                  <NavLink to="/fashion" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                    All Fashion
+                  </NavLink>
+                  <NavLink to="/fashion#men" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                    Men
+                  </NavLink>
+                  <NavLink to="/fashion#women" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                    Women
+                  </NavLink>
+                  <NavLink to="/fashion#kids" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                    Kids
+                  </NavLink>
+                  <NavLink to="/fashion#footwear" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                    Footwear
+                  </NavLink>
+                  <NavLink to="/fashion#accessories" className="block px-4 py-2 text-sm text-muted-foreground hover:bg-muted hover:text-foreground transition-colors">
+                    Accessories
+                  </NavLink>
+                </div>
+              </div>
+            </div>
             <NavLink to="/rewards" className={navLinkClass}>
             Rewards
             </NavLink>
