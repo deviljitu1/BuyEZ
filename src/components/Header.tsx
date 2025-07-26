@@ -214,7 +214,18 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const categories = [
     { name: 'Grocery', icon: 'https://img.icons8.com/color/48/000000/shopping-basket-2.png', link: '/grocery' },
     { name: 'Mobiles', icon: 'https://img.icons8.com/color/48/000000/smartphone-tablet.png', link: '/mobiles' },
-    { name: 'Fashion', icon: 'https://cdn-icons-png.flaticon.com/512/892/892458.png', link: '/fashion', dropdown: ['Men', 'Women', 'Kids', 'Footwear', 'Accessories'] },
+    { 
+      name: 'Fashion', 
+      icon: 'https://cdn-icons-png.flaticon.com/512/892/892458.png', 
+      link: '/fashion', 
+      dropdown: [
+        { name: 'Men', link: '/fashion#men' },
+        { name: 'Women', link: '/fashion#women' },
+        { name: 'Kids', link: '/fashion#kids' },
+        { name: 'Footwear', link: '/fashion#footwear' },
+        { name: 'Accessories', link: '/fashion#accessories' }
+      ]
+    },
     { name: 'Electronics', icon: 'https://img.icons8.com/color/48/000000/laptop.png', link: '/categories?cat=electronics', dropdown: ['Mobiles', 'Laptops', 'Cameras', 'Audio', 'Wearables'] },
     { name: 'Home & Furniture', icon: 'https://img.icons8.com/color/48/000000/sofa.png', link: '/categories?cat=home', dropdown: ['Kitchen', 'Furniture', 'Decor', 'Tools'] },
     { name: 'Appliances', icon: 'https://img.icons8.com/color/48/000000/washing-machine.png', link: '/categories?cat=appliances' },
@@ -691,11 +702,11 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                 >
                   {cat.dropdown.map(sub => (
                     <a
-                      key={sub}
-                      href={cat.link + '&sub=' + encodeURIComponent(sub)}
+                      key={typeof sub === 'string' ? sub : sub.name}
+                      href={typeof sub === 'string' ? cat.link + '&sub=' + encodeURIComponent(sub) : sub.link}
                       className="block px-4 py-2 text-sm text-foreground hover:bg-muted hover:text-primary whitespace-nowrap"
                     >
-                      {sub}
+                      {typeof sub === 'string' ? sub : sub.name}
                     </a>
                   ))}
                 </div>
