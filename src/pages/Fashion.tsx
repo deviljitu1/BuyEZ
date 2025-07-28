@@ -188,7 +188,7 @@ const fashionProducts = {
 };
 
 const Fashion = () => {
-  const [activeTab, setActiveTab] = useState('men');
+  const [activeTab, setActiveTab] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
   const [priceFilter, setPriceFilter] = useState('all');
   const { addToCart } = useCart();
@@ -197,8 +197,8 @@ const Fashion = () => {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      if (hash && Object.keys(fashionProducts).includes(hash)) {
-        setActiveTab(hash);
+      if (hash === 'all' || (hash && Object.keys(fashionProducts).includes(hash))) {
+        setActiveTab(hash || 'all');
       }
     };
 
@@ -218,7 +218,7 @@ const Fashion = () => {
   };
 
   const getFilteredProducts = () => {
-    let products = fashionProducts[activeTab as keyof typeof fashionProducts] || [];
+    let products = activeTab === 'all' ? getAllProducts() : fashionProducts[activeTab as keyof typeof fashionProducts] || [];
     
     // Apply price filter
     if (priceFilter === 'under-50') {
@@ -317,7 +317,11 @@ const Fashion = () => {
 
           {/* Product Tabs */}
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-5 mb-8">
+            <TabsList className="grid w-full grid-cols-6 mb-8">
+              <TabsTrigger value="all" className="flex items-center gap-2">
+                <span>🛍️</span>
+                All
+              </TabsTrigger>
               <TabsTrigger value="men" className="flex items-center gap-2">
                 <span>👨</span>
                 Men
@@ -339,6 +343,67 @@ const Fashion = () => {
                 Accessories
               </TabsTrigger>
             </TabsList>
+
+            <TabsContent value="all" className="mt-8" id="all">
+              <div className="grid grid-cols-1 xs:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-6">
+                {getFilteredProducts().map((product, index) => (
+                  <div
+                    key={product.id}
+                    className="animate-fade-in bg-card rounded-lg border shadow-sm hover:shadow-md transition-shadow p-4"
+                    style={{ animationDelay: `${index * 0.1}s` }}
+                  >
+                    <div className="relative mb-4">
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        className="w-full h-48 object-cover rounded-md"
+                      />
+                      {product.isNew && (
+                        <Badge className="absolute top-2 left-2" variant="secondary">
+                          New
+                        </Badge>
+                      )}
+                      {product.originalPrice && (
+                        <Badge className="absolute top-2 right-2 bg-destructive text-destructive-foreground">
+                          -{Math.round((1 - product.price / product.originalPrice) * 100)}%
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <h3 className="font-semibold text-lg leading-tight">{product.name}</h3>
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center">
+                          <Star className="w-4 h-4 fill-primary text-primary" />
+                          <span className="text-sm ml-1">{product.rating}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">({product.reviews})</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <span className="text-xl font-bold text-primary">
+                          ${product.price}
+                        </span>
+                        {product.originalPrice && (
+                          <span className="text-sm text-muted-foreground line-through">
+                            ${product.originalPrice}
+                          </span>
+                        )}
+                      </div>
+                      
+                      <p className="text-sm text-muted-foreground">{product.description}</p>
+                      
+                      <Button 
+                        className="w-full mt-4" 
+                        onClick={() => addToCart(product)}
+                      >
+                        Add to Cart
+                      </Button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
 
             {Object.keys(fashionProducts).map((category) => (
               <TabsContent key={category} value={category} className="mt-8" id={category}>
