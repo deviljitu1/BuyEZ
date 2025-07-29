@@ -89,9 +89,9 @@ export default function FlightBookings() {
                 <Button variant={tripType === 'round-trip' ? 'default' : 'ghost'} onClick={() => setTripType('round-trip')} className="rounded-none">Round Trip</Button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4 items-end">
+              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end">
                 {/* From & To */}
-                <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-2">
+                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-2">
                   <div className="relative">
                     <Plane className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                     <Input placeholder="From" value={from} onChange={(e) => setFrom(e.target.value)} className="pl-10"/>
@@ -159,7 +159,7 @@ export default function FlightBookings() {
                 </Popover>
 
                 {/* Search Button */}
-                <Button onClick={handleSearch} disabled={isSearching} className="w-full h-full md:col-span-1">
+                <Button onClick={handleSearch} disabled={isSearching} className="w-full lg:col-span-1">
                   <Search className="h-4 w-4 mr-2" /> {isSearching ? 'Searching...' : 'Search'}
                 </Button>
               </div>
@@ -177,19 +177,29 @@ export default function FlightBookings() {
                 <div className="space-y-4">
                     {searchedFlights.map(flight => (
                         <Card key={flight.id} className="hover:shadow-md transition-shadow">
-                            <CardContent className="p-4 grid grid-cols-2 md:grid-cols-6 items-center gap-4">
-                                <div className="font-bold text-lg md:col-span-1">{flight.logo} {flight.airline}</div>
-                                <div className="text-center md:col-span-1">
-                                    <p className="font-semibold text-lg">{flight.departureTime}</p>
-                                    <p className="text-sm text-muted-foreground">{flight.from}</p>
+                            <CardContent className="p-4 flex flex-col md:flex-row md:items-center gap-4">
+                                <div className="flex-1 flex flex-col md:flex-row md:items-center gap-4">
+                                    <div className="font-bold text-lg md:w-40">{flight.logo} {flight.airline}</div>
+                                    <div className="flex justify-between md:justify-start md:gap-8 items-center">
+                                        <div className="text-center md:text-left">
+                                            <p className="font-semibold text-lg">{flight.departureTime}</p>
+                                            <p className="text-sm text-muted-foreground">{flight.from}</p>
+                                        </div>
+                                        <div className="text-center text-muted-foreground text-sm px-2">
+                                            <p>{flight.duration}</p>
+                                            <div className="w-12 h-px bg-gray-300 my-1"></div>
+                                            <p>{flight.stops}</p>
+                                        </div>
+                                        <div className="text-center md:text-left">
+                                            <p className="font-semibold text-lg">{flight.arrivalTime}</p>
+                                            <p className="text-sm text-muted-foreground">{flight.to}</p>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="text-center text-muted-foreground text-sm md:col-span-1">{flight.duration}</div>
-                                <div className="text-center md:col-span-1">
-                                    <p className="font-semibold text-lg">{flight.arrivalTime}</p>
-                                    <p className="text-sm text-muted-foreground">{flight.to}</p>
+                                <div className="flex flex-col md:items-end gap-2 pt-4 md:pt-0 border-t md:border-none">
+                                    <div className="text-center md:text-right font-semibold text-xl text-primary">₹{flight.price.toLocaleString()}</div>
+                                    <Button className="w-full md:w-auto">Book Now</Button>
                                 </div>
-                                <div className="text-center font-semibold text-xl text-primary md:col-span-1">₹{flight.price.toLocaleString()}</div>
-                                <Button className="w-full md:col-span-1">Book Now</Button>
                             </CardContent>
                         </Card>
                     ))}
