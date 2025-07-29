@@ -71,6 +71,12 @@ export default function FlightBookings() {
         setIsSearching(false);
     }, 1500);
   };
+
+  const handleDestinationClick = (destination: string) => {
+    setTo(destination);
+    handleSearch();
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
   
   const totalPassengers = passengers.adults + passengers.children;
 
@@ -226,20 +232,24 @@ export default function FlightBookings() {
 
         {/* Popular Destinations Section */}
         <div>
-          <h2 className="text-2xl font-bold mb-6 text-center">Explore Popular Destinations</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <h2 className="text-3xl font-bold mb-8 text-center">Explore Popular Destinations</h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {popularDestinations.map((dest) => (
-              <Card key={dest.city} className="overflow-hidden group cursor-pointer">
-                <div className="relative">
-                  <img src={dest.image} alt={dest.city} className="w-full h-full object-cover aspect-[3/4] group-hover:scale-105 transition-transform duration-300" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-0 left-0 p-4 text-white">
-                    <h3 className="font-semibold text-lg">{dest.city}</h3>
-                    <p className="text-sm">{dest.country}</p>
-                  </div>
-                   <Badge className="absolute top-2 right-2">from ₹{dest.price.toLocaleString()}</Badge>
+              <button 
+                key={dest.city} 
+                onClick={() => handleDestinationClick(`${dest.city}`)}
+                className="text-left rounded-xl overflow-hidden group relative shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
+              >
+                <img src={dest.image} alt={dest.city} className="w-full h-full object-cover aspect-[4/5] group-hover:scale-105 transition-transform duration-300" />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+                <div className="absolute bottom-0 left-0 p-5 text-white">
+                  <h3 className="font-bold text-2xl">{dest.city}</h3>
+                  <p className="text-sm text-white/90">{dest.country}</p>
                 </div>
-              </Card>
+                <Badge className="absolute top-4 right-4 bg-white/95 text-primary font-semibold border-none text-sm px-3 py-1">
+                  from ₹{dest.price.toLocaleString()}
+                </Badge>
+              </button>
             ))}
           </div>
         </div>
