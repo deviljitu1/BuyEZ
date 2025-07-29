@@ -181,7 +181,7 @@ export default function FlightBookings() {
                     <Button variant="link" className="text-primary h-auto p-0 justify-start" onClick={findNearestAirport}>
                       <MapPin className="h-4 w-4 mr-1"/> Find nearest airport
                     </Button>
-                    <DialogContent style={{ zIndex: 100000 }}>
+                    <DialogContent style={{ zIndex: 100001 }}>
                       <DialogHeader>
                         <DialogTitle>Nearest Airports</DialogTitle>
                       </DialogHeader>
