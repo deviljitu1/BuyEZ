@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { Plane, ArrowRightLeft, Calendar, User, Minus, Plus, Search, MapPin, Ticket, ShieldCheck, LifeBuoy } from 'lucide-react';
+import { Plane, ArrowRightLeft, Calendar as CalendarIcon, User, Minus, Plus, Search, MapPin, Ticket, ShieldCheck, LifeBuoy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 // Mock data for popular destinations
 const popularDestinations = [
@@ -81,86 +84,100 @@ export default function FlightBookings() {
           <p className="text-lg text-white/90 mb-8">Unbeatable prices and a seamless booking experience.</p>
           
           {/* Flight Search Card */}
-          <Card className="w-full max-w-4xl shadow-2xl">
-            <CardContent className="p-4 md:p-6">
+          <Card className="w-full max-w-6xl shadow-2xl">
+            <CardContent className="p-4">
               {/* Trip Type Tabs */}
-              <div className="flex border-b mb-4">
-                <Button variant={tripType === 'one-way' ? 'default' : 'ghost'} onClick={() => setTripType('one-way')} className="rounded-none">One Way</Button>
-                <Button variant={tripType === 'round-trip' ? 'default' : 'ghost'} onClick={() => setTripType('round-trip')} className="rounded-none">Round Trip</Button>
+              <div className="flex mb-4">
+                <Button variant={tripType === 'one-way' ? 'secondary' : 'ghost'} onClick={() => setTripType('one-way')} className="rounded-r-none">One Way</Button>
+                <Button variant={tripType === 'round-trip' ? 'secondary' : 'ghost'} onClick={() => setTripType('round-trip')} className="rounded-l-none border-l-0">Round Trip</Button>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-5 gap-4 items-end">
+              <div className="flex flex-col lg:flex-row gap-4 items-center">
                 {/* From & To */}
-                <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-2">
+                <div className="w-full lg:w-2/5 grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-2">
                   <div className="relative">
-                    <Plane className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="From" value={from} onChange={(e) => setFrom(e.target.value)} className="pl-10"/>
+                    <label className="absolute -top-2 left-2 bg-background px-1 text-xs text-muted-foreground">From</label>
+                    <Plane className="absolute left-3 top-[calc(50%-2px)] -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Mumbai" value={from} onChange={(e) => setFrom(e.target.value)} className="pl-10 h-12 text-base"/>
                   </div>
-                  <Button variant="outline" size="icon" onClick={handleSwap} className="mx-auto">
+                  <Button variant="outline" size="icon" onClick={handleSwap} className="mx-auto mt-4 sm:mt-0">
                     <ArrowRightLeft className="h-4 w-4" />
                   </Button>
                   <div className="relative">
-                     <Plane className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="To" value={to} onChange={(e) => setTo(e.target.value)} className="pl-10"/>
+                    <label className="absolute -top-2 left-2 bg-background px-1 text-xs text-muted-foreground">To</label>
+                    <Plane className="absolute left-3 top-[calc(50%-2px)] -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input placeholder="Delhi" value={to} onChange={(e) => setTo(e.target.value)} className="pl-10 h-12 text-base"/>
                   </div>
                 </div>
 
                 {/* Dates */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                  <div className="relative">
-                    <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input type="text" value={departureDate?.toLocaleDateString()} onFocus={(e) => e.target.type = 'date'} onBlur={(e) => e.target.type = 'text'} className="pl-10" />
-                  </div>
-                  <div className="relative">
-                     <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input type="text" placeholder="Return" disabled={tripType === 'one-way'} onFocus={(e) => e.target.type = 'date'} onBlur={(e) => e.target.type = 'text'} className="pl-10"/>
-                  </div>
+                <div className="w-full lg:w-auto flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant={"outline"} className={cn("w-full h-12 justify-start text-left font-normal", !departureDate && "text-muted-foreground")}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {departureDate ? format(departureDate, "PPP") : <span>Departure</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={departureDate} onSelect={setDepartureDate} initialFocus /></PopoverContent>
+                  </Popover>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant={"outline"} className={cn("w-full h-12 justify-start text-left font-normal", !returnDate && "text-muted-foreground")} disabled={tripType === 'one-way'}>
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {returnDate ? format(returnDate, "PPP") : <span>Return</span>}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0"><Calendar mode="single" selected={returnDate} onSelect={setReturnDate} disabled={(date) => departureDate ? date < departureDate : false} initialFocus /></PopoverContent>
+                  </Popover>
                 </div>
                 
                 {/* Passengers & Class */}
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-left font-normal">
-                      <User className="mr-2 h-4 w-4" />
-                      <div>
-                        <p className="text-sm font-medium">{totalPassengers} Passenger{totalPassengers > 1 ? 's' : ''}</p>
-                        <p className="text-xs text-muted-foreground capitalize">{cabinClass}</p>
-                      </div>
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80">
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                          <span className="font-medium">Adults</span>
-                          <div className="flex items-center gap-2">
-                              <Button size="icon" variant="outline" onClick={() => setPassengers(p => ({...p, adults: Math.max(1, p.adults - 1)}))}><Minus className="h-4 w-4"/></Button>
-                              <span>{passengers.adults}</span>
-                              <Button size="icon" variant="outline" onClick={() => setPassengers(p => ({...p, adults: p.adults + 1}))}><Plus className="h-4 w-4"/></Button>
+                <div className="w-full lg:w-auto">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button variant="outline" className="w-full h-12 justify-start text-left font-normal">
+                          <User className="mr-2 h-4 w-4" />
+                          <div>
+                            <p className="text-sm font-medium">{totalPassengers} Passenger{totalPassengers > 1 ? 's' : ''}</p>
+                            <p className="text-xs text-muted-foreground capitalize">{cabinClass}</p>
                           </div>
-                      </div>
-                      <div className="flex items-center justify-between">
-                          <span className="font-medium">Children</span>
-                          <div className="flex items-center gap-2">
-                              <Button size="icon" variant="outline" onClick={() => setPassengers(p => ({...p, children: Math.max(0, p.children - 1)}))}><Minus className="h-4 w-4"/></Button>
-                              <span>{passengers.children}</span>
-                              <Button size="icon" variant="outline" onClick={() => setPassengers(p => ({...p, children: p.children + 1}))}><Plus className="h-4 w-4"/></Button>
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80">
+                        <div className="space-y-4">
+                          <div className="flex items-center justify-between">
+                              <span className="font-medium">Adults</span>
+                              <div className="flex items-center gap-2">
+                                  <Button size="icon" variant="outline" onClick={() => setPassengers(p => ({...p, adults: Math.max(1, p.adults - 1)}))}><Minus className="h-4 w-4"/></Button>
+                                  <span>{passengers.adults}</span>
+                                  <Button size="icon" variant="outline" onClick={() => setPassengers(p => ({...p, adults: p.adults + 1}))}><Plus className="h-4 w-4"/></Button>
+                              </div>
                           </div>
-                      </div>
-                      <Select value={cabinClass} onValueChange={setCabinClass}>
-                        <SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="economy">Economy</SelectItem>
-                            <SelectItem value="business">Business</SelectItem>
-                            <SelectItem value="first">First</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </PopoverContent>
-                </Popover>
+                          <div className="flex items-center justify-between">
+                              <span className="font-medium">Children</span>
+                              <div className="flex items-center gap-2">
+                                  <Button size="icon" variant="outline" onClick={() => setPassengers(p => ({...p, children: Math.max(0, p.children - 1)}))}><Minus className="h-4 w-4"/></Button>
+                                  <span>{passengers.children}</span>
+                                  <Button size="icon" variant="outline" onClick={() => setPassengers(p => ({...p, children: p.children + 1}))}><Plus className="h-4 w-4"/></Button>
+                              </div>
+                          </div>
+                          <Select value={cabinClass} onValueChange={setCabinClass}>
+                            <SelectTrigger><SelectValue placeholder="Select Class" /></SelectTrigger>
+                            <SelectContent>
+                                <SelectItem value="economy">Economy</SelectItem>
+                                <SelectItem value="business">Business</SelectItem>
+                                <SelectItem value="first">First</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                </div>
 
                 {/* Search Button */}
-                <Button onClick={handleSearch} disabled={isSearching} className="w-full lg:col-span-1">
-                  <Search className="h-4 w-4 mr-2" /> {isSearching ? 'Searching...' : 'Search'}
+                <Button onClick={handleSearch} disabled={isSearching} className="w-full lg:w-auto h-12 text-lg px-8">
+                  <Search className="h-5 w-5 mr-2" /> {isSearching ? 'Searching...' : 'Search'}
                 </Button>
               </div>
             </CardContent>
