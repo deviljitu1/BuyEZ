@@ -13,6 +13,7 @@ const steps = ["Flight Review", "Traveller Details", "Add-ons", "Payment"];
 
 export default function FlightCheckout() {
   const [currentStep, setCurrentStep] = useState(0);
+  const [isBookingConfirmed, setIsBookingConfirmed] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
   const { flight } = location.state || {}; // Get flight data from navigation state
@@ -29,7 +30,14 @@ export default function FlightCheckout() {
     );
   }
 
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+  const nextStep = () => {
+    if (currentStep === steps.length - 1) {
+      // Last step, simulate booking confirmation
+      setIsBookingConfirmed(true);
+    } else {
+      setCurrentStep(prev => Math.min(prev + 1, steps.length - 1));
+    }
+  };
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 0));
 
   const renderStepContent = () => {
@@ -41,6 +49,20 @@ export default function FlightCheckout() {
       default: return null;
     }
   };
+
+  if (isBookingConfirmed) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <Card className="w-full max-w-md text-center p-8">
+          <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-6" />
+          <CardTitle className="text-2xl font-bold mb-3">Booking Confirmed!</CardTitle>
+          <p className="text-muted-foreground mb-6">Your flight from {flight.from.split(' ')[0]} to {flight.to.split(' ')[0]} has been successfully booked.</p>
+          <p className="text-sm text-muted-foreground mb-8">A confirmation email with your e-ticket has been sent to your registered email address.</p>
+          <Button onClick={() => navigate('/')}>Go to Home</Button>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -128,9 +150,10 @@ const FlightReview = ({ flight }: { flight: any }) => (
 const TravellerDetails = () => (
   <div className="space-y-6">
     <h3 className="font-semibold text-lg border-b pb-2">Adult 1</h3>
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="space-y-2"><Label htmlFor="firstName">First Name</Label><Input id="firstName" placeholder="John" /></div>
       <div className="space-y-2"><Label htmlFor="lastName">Last Name</Label><Input id="lastName" placeholder="Doe" /></div>
+      <div className="space-y-2"><Label htmlFor="age">Age</Label><Input id="age" type="number" placeholder="30" min="1" /></div>
     </div>
     <div className="space-y-2">
         <Label>Gender</Label>
