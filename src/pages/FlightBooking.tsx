@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plane, ArrowRightLeft, Calendar as CalendarIcon, User, Minus, Plus, Search, MapPin, Ticket, ShieldCheck, LifeBuoy, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -57,6 +58,7 @@ const airports = [
 ];
 
 export default function FlightBookings() {
+  const navigate = useNavigate();
   const [tripType, setTripType] = useState<'one-way' | 'round-trip'>('one-way');
   const [from, setFrom] = useState('Mumbai (BOM)');
   const [to, setTo] = useState('Delhi (DEL)');
@@ -310,7 +312,7 @@ export default function FlightBookings() {
                                 </div>
                                 <div className="flex flex-col md:items-end gap-2 pt-4 md:pt-0 border-t md:border-none">
                                     <div className="text-center md:text-right font-semibold text-xl text-primary">₹{flight.price.toLocaleString()}</div>
-                                    <Button className="w-full md:w-auto">Book Now</Button>
+                                    <Button className="w-full md:w-auto" onClick={() => navigate('/flight-checkout', { state: { flight } })}>Book Now</Button>
                                 </div>
                             </CardContent>
                         </Card>
