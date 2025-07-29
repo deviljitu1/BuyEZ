@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plane, ArrowRightLeft, Calendar as CalendarIcon, User, Minus, Plus, Search, MapPin, Ticket, ShieldCheck, LifeBuoy } from 'lucide-react';
+import { Plane, ArrowRightLeft, Calendar as CalendarIcon, User, Minus, Plus, Search, MapPin, Ticket, ShieldCheck, LifeBuoy, Loader2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Calendar } from '@/components/ui/calendar';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 
 // Mock data for popular destinations
 const popularDestinations = [
@@ -45,6 +46,16 @@ const mockFlights = [
     { id: '3', airline: 'Air India', logo: '✈️', from: 'BOM', to: 'DEL', departureTime: '11:45', arrivalTime: '14:00', duration: '2h 15m', stops: 'Non-stop', price: 6100 },
 ];
 
+// Mock airport data with coordinates
+const airports = [
+    { name: "Chhatrapati Shivaji Maharaj Int'l", code: "BOM", city: "Mumbai", lat: 19.0896, lon: 72.8656 },
+    { name: "Indira Gandhi International Airport", code: "DEL", city: "Delhi", lat: 28.5562, lon: 77.1000 },
+    { name: "Kempegowda International Airport", code: "BLR", city: "Bengaluru", lat: 13.1986, lon: 77.7066 },
+    { name: "Chennai International Airport", code: "MAA", city: "Chennai", lat: 12.9941, lon: 80.1709 },
+    { name: "Netaji Subhas Chandra Bose Int'l", code: "CCU", city: "Kolkata", lat: 22.6547, lon: 88.4467 },
+    { name: "Pune Airport", code: "PNQ", city: "Pune", lat: 18.5821, lon: 73.9197 },
+];
+
 export default function FlightBookings() {
   const [tripType, setTripType] = useState<'one-way' | 'round-trip'>('one-way');
   const [from, setFrom] = useState('Mumbai (BOM)');
@@ -55,6 +66,9 @@ export default function FlightBookings() {
   const [cabinClass, setCabinClass] = useState('economy');
   const [searchedFlights, setSearchedFlights] = useState<typeof mockFlights>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [isLocating, setIsLocating] = useState(false);
+  const [nearestAirports, setNearestAirports] = useState<any[]>([]);
+  const [isAirportModalOpen, setIsAirportModalOpen] = useState(false);
 
   const handleSwap = () => {
     const temp = from;
@@ -76,6 +90,53 @@ export default function FlightBookings() {
     setTo(destination);
     handleSearch();
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const getDistance = (lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * 
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)); 
+    return R * c; // Distance in km
+  }
+
+  const findNearestAirport = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser.");
+      return;
+    }
+    
+    setIsLocating(true);
+    setIsAirportModalOpen(true);
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        const sortedAirports = airports
+          .map(airport => ({
+            ...airport,
+            distance: getDistance(latitude, longitude, airport.lat, airport.lon)
+          }))
+          .sort((a, b) => a.distance - b.distance);
+        
+        setNearestAirports(sortedAirports.slice(0, 4));
+        setIsLocating(false);
+      },
+      () => {
+        alert("Unable to retrieve your location.");
+        setIsLocating(false);
+        setIsAirportModalOpen(false);
+      }
+    );
+  };
+
+  const selectAirport = (airport: any) => {
+    setFrom(`${airport.city} (${airport.code})`);
+    setIsAirportModalOpen(false);
   };
   
   const totalPassengers = passengers.adults + passengers.children;
@@ -100,20 +161,48 @@ export default function FlightBookings() {
 
               <div className="flex flex-col lg:flex-row gap-4 items-center">
                 {/* From & To */}
-                <div className="w-full lg:w-2/5 grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-2">
-                  <div className="relative">
-                    <label className="absolute -top-2 left-2 bg-background px-1 text-xs text-muted-foreground">From</label>
-                    <Plane className="absolute left-3 top-[calc(50%-2px)] -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Mumbai" value={from} onChange={(e) => setFrom(e.target.value)} className="pl-10 h-12 text-base"/>
+                <div className="w-full lg:w-2/5 flex flex-col gap-2">
+                  <div className="grid grid-cols-1 sm:grid-cols-[1fr_auto_1fr] items-center gap-2">
+                    <div className="relative">
+                      <label className="absolute -top-2 left-2 bg-background px-1 text-xs text-muted-foreground">From</label>
+                      <Plane className="absolute left-3 top-[calc(50%-2px)] -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Mumbai" value={from} onChange={(e) => setFrom(e.target.value)} className="pl-10 h-12 text-base"/>
+                    </div>
+                    <Button variant="outline" size="icon" onClick={handleSwap} className="mx-auto mt-4 sm:mt-0">
+                      <ArrowRightLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="relative">
+                      <label className="absolute -top-2 left-2 bg-background px-1 text-xs text-muted-foreground">To</label>
+                      <Plane className="absolute left-3 top-[calc(50%-2px)] -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input placeholder="Delhi" value={to} onChange={(e) => setTo(e.target.value)} className="pl-10 h-12 text-base"/>
+                    </div>
                   </div>
-                  <Button variant="outline" size="icon" onClick={handleSwap} className="mx-auto mt-4 sm:mt-0">
-                    <ArrowRightLeft className="h-4 w-4" />
-                  </Button>
-                  <div className="relative">
-                    <label className="absolute -top-2 left-2 bg-background px-1 text-xs text-muted-foreground">To</label>
-                    <Plane className="absolute left-3 top-[calc(50%-2px)] -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                    <Input placeholder="Delhi" value={to} onChange={(e) => setTo(e.target.value)} className="pl-10 h-12 text-base"/>
-                  </div>
+                  <Dialog open={isAirportModalOpen} onOpenChange={setIsAirportModalOpen}>
+                    <Button variant="link" className="text-primary h-auto p-0 justify-start" onClick={findNearestAirport}>
+                      <MapPin className="h-4 w-4 mr-1"/> Find nearest airport
+                    </Button>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Nearest Airports</DialogTitle>
+                      </DialogHeader>
+                      {isLocating ? (
+                        <div className="flex items-center justify-center p-8">
+                          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                          <span className="ml-2">Finding your location...</span>
+                        </div>
+                      ) : (
+                        <div className="flex flex-col gap-2">
+                          {nearestAirports.map(airport => (
+                            <button key={airport.code} onClick={() => selectAirport(airport)} className="text-left p-3 rounded-md hover:bg-muted transition-colors">
+                              <p className="font-semibold">{airport.city} ({airport.code})</p>
+                              <p className="text-sm text-muted-foreground">{airport.name}</p>
+                              <p className="text-xs text-muted-foreground">{airport.distance.toFixed(1)} km away</p>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </DialogContent>
+                  </Dialog>
                 </div>
 
                 {/* Dates */}
