@@ -246,7 +246,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
           <div className="w-8 h-8 bg-gradient-to-br from-primary to-primary-glow rounded-lg flex items-center justify-center">
             <span className="text-primary-foreground font-bold text-sm">SE</span>
           </div>
-          <span className="text-xl font-bold tracking-tight">ShopEZ</span>
+          <span className="text-xl font-bold tracking-tight"><a href="/">ShopEZ</a></span>
         </div>
 
         {/* Desktop Navigation */}
