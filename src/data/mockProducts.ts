@@ -199,5 +199,69 @@ export const mockProducts: Product[] = [
     stock: 11,
     isNew: false,
     description: 'Versatile 2-in-1 laptop with touchscreen and stylus support.'
+  },
+  {
+    id: '17',
+    name: 'Modern Sofa',
+    category: 'Furniture',
+    price: 799,
+    image: 'https://img.icons8.com/color/48/000000/sofa.png',
+    rating: 4.8,
+    reviews: 150,
+    stock: 5,
+    description: 'A comfortable and stylish sofa for your living room.',
+    specifications: {
+      Material: 'Wood, Fabric',
+      Dimensions: '84" x 36" x 32"',
+      Color: 'Gray'
+    }
+  },
+  {
+    id: '18',
+    name: 'Chef\'s Knife',
+    category: 'Kitchen',
+    price: 89,
+    image: 'https://img.icons8.com/color/48/000000/knife.png',
+    rating: 4.9,
+    reviews: 300,
+    stock: 20,
+    description: 'A high-quality chef\'s knife for all your cooking needs.',
+    specifications: {
+      'Blade Material': 'High-Carbon Stainless Steel',
+      'Blade Length': '8 inches',
+      'Handle Material': 'Wood'
+    }
+  },
+  {
+    id: '19',
+    name: 'Wall Art',
+    category: 'Decor',
+    price: 120,
+    image: 'https://img.icons8.com/color/48/000000/picture.png',
+    rating: 4.7,
+    reviews: 80,
+    stock: 15,
+    description: 'Beautiful wall art to decorate your home.',
+    specifications: {
+      Type: 'Canvas Print',
+      Dimensions: '24" x 36"',
+      Frame: 'Wood'
+    }
+  },
+  {
+    id: '20',
+    name: 'Power Drill',
+    category: 'Tools',
+    price: 150,
+    image: 'https://img.icons8.com/color/48/000000/drill.png',
+    rating: 4.6,
+    reviews: 120,
+    stock: 10,
+    description: 'A powerful and reliable drill for all your DIY projects.',
+    specifications: {
+      Voltage: '18V',
+      'Battery Type': 'Lithium-Ion',
+      'Chuck Size': '1/2 inch'
+    }
   }
 ];

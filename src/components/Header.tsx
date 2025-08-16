@@ -239,7 +239,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
 
   return (
     <>
-    <header className="sticky top-0 z-[999999] bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
+    <header className="sticky top-0 z-[999999 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b w-full">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <div className="flex items-center space-x-2" style={{ position: 'relative', zIndex: 999999 }}>
@@ -694,3 +694,4 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
     </>
   );
 };
+

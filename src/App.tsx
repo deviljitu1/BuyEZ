@@ -30,6 +30,7 @@ import Fashion from './pages/Fashion';
 import { Appliances } from './pages/Appliances';
 import FlightBooking from './pages/FlightBooking';
 import FlightCheckout from './pages/FlightCheckout';
+import HomeAndFurniture from './pages/HomeAndFurniture';
 
 const queryClient = new QueryClient();
 
@@ -66,6 +67,7 @@ const App = () => {
             <Route path="/appliances" element={<Appliances />} />
             <Route path="/flight-booking" element={<FlightBooking />} />
             <Route path="/flight-checkout" element={<FlightCheckout />} />
+            <Route path="/home-and-furniture" element={<HomeAndFurniture addToCart={addToCart} />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
@@ -84,3 +86,4 @@ const App = () => {
 };
 
 export default App;
+

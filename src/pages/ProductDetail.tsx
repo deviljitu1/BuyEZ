@@ -1,11 +1,10 @@
+import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { mockProducts } from '@/data/mockProducts';
 import { Star, ShoppingCart, ArrowLeft, X } from 'lucide-react';
 import { ProductGrid } from '@/components/ProductGrid';
 import { Product } from '@/types/product';
 import { useCart } from '@/hooks/useCart';
-import { useEffect, useState } from 'react';
-
 type ProductDetailProps = {
   addToCart: (product: Product) => void;
 };
@@ -15,13 +14,12 @@ const ProductDetail = ({ addToCart }: ProductDetailProps) => {
   const navigate = useNavigate();
   const { items, updateQuantity } = useCart();
   const [zoomed, setZoomed] = useState(false);
-  const [showSpecs, setShowSpecs] = useState(false);
   const [pincode, setPincode] = useState('');
   const [enteredPincode, setEnteredPincode] = useState('');
   const [deliveryDate, setDeliveryDate] = useState<string | null>(null);
   const [pincodeError, setPincodeError] = useState('');
   const product = mockProducts.find(p => p.id === id);
-  const otherProducts = mockProducts.filter(p => p.id !== id);
+  const relatedProducts = mockProducts.filter(p => p.category === product?.category && p.id !== id);
   const cartItem = items.find(item => item.id === id);
   const quantity = cartItem ? cartItem.quantity : 0;
 
@@ -47,7 +45,7 @@ const ProductDetail = ({ addToCart }: ProductDetailProps) => {
       {zoomed && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80" onClick={() => setZoomed(false)}>
           <div className="relative max-w-3xl w-full flex items-center justify-center">
-            <img src={product.image} alt={product.name} className="max-h-[80vh] max-w-full rounded-lg shadow-2xl object-contain" />
+            <img src={product.image} alt={product.name} className="max-h-[80vh max-w-full rounded-lg shadow-2xl object-contain" />
             <button
               className="absolute top-4 right-4 bg-background rounded-full p-2 shadow hover:bg-muted"
               onClick={e => { e.stopPropagation(); setZoomed(false); }}
@@ -177,57 +175,24 @@ const ProductDetail = ({ addToCart }: ProductDetailProps) => {
           <div className="mb-6">
             <h3 className="text-lg font-semibold mb-2">General</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-              <div className="text-muted-foreground">Model ID</div><div>Neo</div>
-              <div className="text-muted-foreground">Color</div><div>Soft Lilac</div>
-              <div className="text-muted-foreground">Headphone Type</div><div>True Wireless</div>
-              <div className="text-muted-foreground">Inline Remote</div><div>No</div>
-              <div className="text-muted-foreground">Sales Package</div><div>1 Pair of Earbuds, Charging Case, Charging Cable, User Manual, Warranty Card</div>
-              <div className="text-muted-foreground">Connectivity</div><div>Bluetooth</div>
-              <div className="text-muted-foreground">Headphone Design</div><div>Earbud</div>
-              <div className="text-muted-foreground">Compatible Devices</div><div>Laptop, Mobile, Tablet</div>
+              {product.specifications ? (
+                Object.entries(product.specifications).map(([key, value]) => (
+                  <React.Fragment key={key}>
+                    <div className="text-muted-foreground">{key}</div>
+                    <div>{value}</div>
+                  </React.Fragment>
+                ))
+              ) : (
+                <p>No specifications available.</p>
+              )}
             </div>
           </div>
-          <div className="mb-6">
-            <h3 className="text-lg font-semibold mb-2">Product Details</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-              <div className="text-muted-foreground">Sweat Proof</div><div>Yes</div>
-              <div className="text-muted-foreground">Deep Bass</div><div>No</div>
-              <div className="text-muted-foreground">Water Resistant</div><div>Yes</div>
-              <div className="text-muted-foreground">With Microphone</div><div>Yes</div>
-            </div>
-          </div>
-          {showSpecs && (
-            <>
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Connectivity Features</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                  <div className="text-muted-foreground">Wireless Range</div><div>10 m</div>
-                </div>
-              </div>
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold mb-2">Warranty</h3>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2">
-                  <div className="text-muted-foreground">Domestic Warranty</div><div>1 Year</div>
-                  <div className="text-muted-foreground">Warranty Summary</div><div>1 Year Warranty</div>
-                  <div className="text-muted-foreground">Warranty Service Type</div><div>If Any Query Customer Need to Contact Us at help@nexxbase.com or Call on 8882132132</div>
-                  <div className="text-muted-foreground">Covered in Warranty</div><div>Manufacturing Defects</div>
-                  <div className="text-muted-foreground">Not Covered in Warranty</div><div>Physical and Water Damages</div>
-                </div>
-              </div>
-            </>
-          )}
-          <button
-            className="mt-4 text-primary font-semibold hover:underline"
-            onClick={() => setShowSpecs(s => !s)}
-          >
-            {showSpecs ? 'Read Less' : 'Read More'}
-          </button>
         </div>
       </div>
       {/* Always show other products below, as before */}
       <div className="mt-16">
-        <h2 className="text-2xl font-bold mb-6 text-center">Explore More Products</h2>
-        <ProductGrid products={otherProducts} onAddToCart={addToCart} />
+        <h2 className="text-2xl font-bold mb-6 text-center">Related Products</h2>
+        <ProductGrid products={relatedProducts} onAddToCart={addToCart} />
       </div>
     </div>
   );

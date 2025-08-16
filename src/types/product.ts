@@ -10,6 +10,7 @@ export interface Product {
   stock: number;
   isNew?: boolean;
   description?: string;
+  specifications?: { [key: string]: string };
 }
 
 export interface CartItem extends Product {
