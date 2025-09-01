@@ -14,7 +14,262 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "two_wheeler_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          image_url: string | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          image_url?: string | null
+          name?: string
+        }
+        Relationships: []
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          price_at_time: number
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          price_at_time: number
+          product_id: string
+          quantity: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          price_at_time?: number
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "two_wheeler_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          delivery_address: Json | null
+          id: string
+          payment_method: string | null
+          payment_status: string | null
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_address?: Json | null
+          id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: string
+          total_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_address?: Json | null
+          id?: string
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          address: string | null
+          city: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          pincode: string | null
+          updated_at: string
+        }
+        Insert: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          pincode?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address?: string | null
+          city?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          pincode?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      two_wheeler_products: {
+        Row: {
+          brand: string
+          category_id: string
+          created_at: string
+          description: string | null
+          engine_capacity: string | null
+          fuel_type: string | null
+          gallery_images: string[] | null
+          id: string
+          image_url: string
+          is_featured: boolean | null
+          is_new: boolean | null
+          mileage: string | null
+          name: string
+          original_price: number | null
+          price: number
+          rating: number | null
+          review_count: number | null
+          specifications: Json | null
+          status: string | null
+          stock: number
+          top_speed: string | null
+          updated_at: string
+        }
+        Insert: {
+          brand: string
+          category_id: string
+          created_at?: string
+          description?: string | null
+          engine_capacity?: string | null
+          fuel_type?: string | null
+          gallery_images?: string[] | null
+          id?: string
+          image_url: string
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          mileage?: string | null
+          name: string
+          original_price?: number | null
+          price: number
+          rating?: number | null
+          review_count?: number | null
+          specifications?: Json | null
+          status?: string | null
+          stock?: number
+          top_speed?: string | null
+          updated_at?: string
+        }
+        Update: {
+          brand?: string
+          category_id?: string
+          created_at?: string
+          description?: string | null
+          engine_capacity?: string | null
+          fuel_type?: string | null
+          gallery_images?: string[] | null
+          id?: string
+          image_url?: string
+          is_featured?: boolean | null
+          is_new?: boolean | null
+          mileage?: string | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          review_count?: number | null
+          specifications?: Json | null
+          status?: string | null
+          stock?: number
+          top_speed?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "two_wheeler_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
