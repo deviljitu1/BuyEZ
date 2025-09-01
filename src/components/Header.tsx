@@ -231,7 +231,7 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
     { name: 'Appliances', icon: 'https://img.icons8.com/color/48/000000/washing-machine.png', link: '/appliances' },
     { name: 'Flight Bookings', icon: 'https://img.icons8.com/color/48/000000/airplane-take-off.png', link: '/flight-booking' },
     { name: 'Beauty, Toys & More', icon: 'https://img.icons8.com/color/48/000000/teddy-bear.png', link: '/categories?cat=beauty', dropdown: ['Beauty', 'Toys', 'Sports', 'Books'] },
-    { name: 'Two Wheelers', icon: 'https://img.icons8.com/color/48/000000/motorcycle.png', link: '/categories?cat=two-wheelers', dropdown: ['Bikes', 'Scooters', 'Accessories'] },
+    { name: 'Two Wheelers', icon: 'https://img.icons8.com/color/48/000000/motorcycle.png', link: '/two-wheelers' },
   ];
 
   // Add class to dropdown for blur handler
