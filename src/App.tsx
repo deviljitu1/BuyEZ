@@ -25,6 +25,7 @@ import Rewards from './pages/Rewards';
 import Login from './pages/Login';
 import Signup from './pages/Signup';
 import Grocery from './pages/Grocery';
+import GroceryCheckout from './pages/GroceryCheckout';
 import Mobiles from './pages/Mobiles';
 import Fashion from './pages/Fashion';
 import { Appliances } from './pages/Appliances';
@@ -62,7 +63,8 @@ const App = () => {
             <Route path="/rewards" element={<Rewards />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/grocery" element={<Grocery />} />
+        <Route path="/grocery" element={<Grocery />} />
+        <Route path="/grocery-checkout" element={<GroceryCheckout />} />
             <Route path="/mobiles" element={<Mobiles />} />
             <Route path="/fashion" element={<Fashion />} />
             <Route path="/fashion/:category" element={<Fashion />} />

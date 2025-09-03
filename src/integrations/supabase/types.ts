@@ -73,6 +73,95 @@ export type Database = {
         }
         Relationships: []
       }
+      grocery_categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          icon: string
+          id?: string
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      grocery_products: {
+        Row: {
+          category_id: string
+          created_at: string
+          delivery_time: string | null
+          description: string | null
+          discount: number | null
+          id: string
+          image_url: string
+          is_organic: boolean | null
+          name: string
+          original_price: number | null
+          price: number
+          rating: number | null
+          status: string | null
+          stock: number
+          unit: string
+          updated_at: string
+        }
+        Insert: {
+          category_id: string
+          created_at?: string
+          delivery_time?: string | null
+          description?: string | null
+          discount?: number | null
+          id?: string
+          image_url: string
+          is_organic?: boolean | null
+          name: string
+          original_price?: number | null
+          price: number
+          rating?: number | null
+          status?: string | null
+          stock?: number
+          unit: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string
+          created_at?: string
+          delivery_time?: string | null
+          description?: string | null
+          discount?: number | null
+          id?: string
+          image_url?: string
+          is_organic?: boolean | null
+          name?: string
+          original_price?: number | null
+          price?: number
+          rating?: number | null
+          status?: string | null
+          stock?: number
+          unit?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       order_items: {
         Row: {
           created_at: string
