@@ -115,6 +115,12 @@ export default function Grocery() {
               {/* Auth Button */}
               {currentUser ? (
                 <div className="flex items-center gap-2">
+                  {/* Check if user is admin and show admin link */}
+                  {currentUser && (
+                    <Button variant="outline" size="sm" asChild>
+                      <a href="/admin">Admin</a>
+                    </Button>
+                  )}
                   <Button variant="outline" size="sm" onClick={handleLogout}>
                     <User className="h-4 w-4 mr-2" />
                     Logout

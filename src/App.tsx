@@ -34,6 +34,7 @@ import FlightCheckout from './pages/FlightCheckout';
 import HomeAndFurniture from './pages/HomeAndFurniture';
 import TwoWheelers from './pages/TwoWheelers';
 import Auth from './pages/Auth';
+import Admin from './pages/Admin';
 
 const queryClient = new QueryClient();
 
@@ -74,6 +75,7 @@ const App = () => {
             <Route path="/home-and-furniture" element={<HomeAndFurniture addToCart={addToCart} />} />
             <Route path="/two-wheelers" element={<TwoWheelers />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/admin" element={<Admin />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

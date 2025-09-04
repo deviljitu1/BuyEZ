@@ -73,6 +73,41 @@ export type Database = {
         }
         Relationships: []
       }
+      grocery_cart_items: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_cart_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       grocery_categories: {
         Row: {
           created_at: string
@@ -94,6 +129,87 @@ export type Database = {
           icon?: string
           id?: string
           name?: string
+        }
+        Relationships: []
+      }
+      grocery_order_items: {
+        Row: {
+          created_at: string
+          id: string
+          order_id: string
+          price_at_time: number
+          product_id: string
+          quantity: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          order_id: string
+          price_at_time: number
+          product_id: string
+          quantity: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          order_id?: string
+          price_at_time?: number
+          product_id?: string
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "grocery_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "grocery_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "grocery_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      grocery_orders: {
+        Row: {
+          created_at: string
+          delivery_address: Json | null
+          id: string
+          notes: string | null
+          payment_method: string | null
+          payment_status: string | null
+          status: string
+          total_amount: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_address?: Json | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: string
+          total_amount: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          delivery_address?: Json | null
+          id?: string
+          notes?: string | null
+          payment_method?: string | null
+          payment_status?: string | null
+          status?: string
+          total_amount?: number
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -250,6 +366,7 @@ export type Database = {
           id: string
           phone: string | null
           pincode: string | null
+          role: string | null
           updated_at: string
         }
         Insert: {
@@ -261,6 +378,7 @@ export type Database = {
           id: string
           phone?: string | null
           pincode?: string | null
+          role?: string | null
           updated_at?: string
         }
         Update: {
@@ -272,6 +390,7 @@ export type Database = {
           id?: string
           phone?: string | null
           pincode?: string | null
+          role?: string | null
           updated_at?: string
         }
         Relationships: []
