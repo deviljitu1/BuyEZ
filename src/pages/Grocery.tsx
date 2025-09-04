@@ -39,6 +39,7 @@ export default function Grocery() {
   const [selectedCategory, setSelectedCategory] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
   
   const navigate = useNavigate();
   const { categories, loading: categoriesLoading } = useGroceryCategories();
@@ -52,6 +53,16 @@ export default function Grocery() {
   const checkUser = async () => {
     const { data: { user } } = await supabase.auth.getUser();
     setCurrentUser(user);
+    
+    if (user) {
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('role')
+        .eq('id', user.id)
+        .single();
+      
+      setIsAdmin(profile?.role === 'admin');
+    }
   };
 
   const handleAuth = () => {
@@ -116,7 +127,7 @@ export default function Grocery() {
               {currentUser ? (
                 <div className="flex items-center gap-2">
                   {/* Check if user is admin and show admin link */}
-                  {currentUser && (
+                  {isAdmin && (
                     <Button variant="outline" size="sm" asChild>
                       <a href="/admin">Admin</a>
                     </Button>
