@@ -11,7 +11,7 @@ import Categories from "./pages/Categories.tsx";
 import About from "./pages/About.tsx";
 import { Header } from "@/components/Header";
 import { Cart } from '@/components/Cart';
-import { useCart } from '@/hooks/useCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 import ProductDetail from './pages/ProductDetail.tsx';
 import { lazy } from 'react';
 import Checkout from './pages/Checkout.tsx';
@@ -40,7 +40,7 @@ const queryClient = new QueryClient();
 
 const App = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
-  const { items, addToCart, updateQuantity, removeFromCart, getCartCount } = useCart();
+  const { items, addToCart, updateQuantity, removeFromCart, getCartCount } = useUnifiedCart();
 
   return (
   <QueryClientProvider client={queryClient}>

@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { ShoppingCart, Search, Menu, X, User, UserCircle, Star, Box, Heart, Gift, BadgePercent, ChevronRight, Camera, Mic } from 'lucide-react';
+import { ShoppingCart, Search, Menu, X, User, UserCircle, Star, Box, Heart, Gift, BadgePercent, ChevronRight, Camera, Mic, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { NavLink, useNavigate } from 'react-router-dom';
 import { mockProducts } from '@/data/mockProducts';
 import React from 'react';
 import { createPortal } from 'react-dom';
+import { supabase } from '@/integrations/supabase/client';
 
 interface HeaderProps {
   cartCount: number;
@@ -39,6 +40,8 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
   const searchInputRef = useRef<HTMLInputElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
+  const [isAdmin, setIsAdmin] = useState(false);
 
   // Check if mobile on mount and window resize
   useEffect(() => {
@@ -50,6 +53,37 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
     window.addEventListener('resize', checkMobile);
     
     return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Check user and admin status
+  useEffect(() => {
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setCurrentUser(user);
+      
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        
+        setIsAdmin(profile?.role === 'admin');
+      }
+    };
+
+    checkUser();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        checkUser();
+      } else {
+        setCurrentUser(null);
+        setIsAdmin(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   // Load recent searches from localStorage on mount
@@ -412,10 +446,15 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                   <span className="font-medium text-base">New customer?</span>
                   <NavLink to="/signup" className="text-primary font-semibold hover:underline">Sign Up</NavLink>
                 </div>
-                <div className="py-2">
-                  <NavLink to="/profile" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
-                    <UserCircle className="w-5 h-5 mr-3" /> My Profile
-                  </NavLink>
+                 <div className="py-2">
+                   {isAdmin && (
+                     <NavLink to="/admin" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
+                       <Settings className="w-5 h-5 mr-3" /> Admin Panel
+                     </NavLink>
+                   )}
+                   <NavLink to="/profile" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
+                     <UserCircle className="w-5 h-5 mr-3" /> My Profile
+                   </NavLink>
                   <NavLink to="/orders" className={({isActive}) => `flex items-center px-4 py-2 text-foreground hover:bg-muted transition-colors ${isActive ? 'font-semibold text-primary' : ''}`}>
                     <Box className="w-5 h-5 mr-3" /> Orders
                   </NavLink>
