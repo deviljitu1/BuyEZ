@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Heart, ShoppingCart, Star } from 'lucide-react';
 import { Product } from '@/types/product';
 import { Link } from 'react-router-dom';
-import { useCart } from '@/hooks/useCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 import { useWishlist } from '@/hooks/useWishlist';
 
 interface ProductCardProps {
@@ -15,7 +15,7 @@ interface ProductCardProps {
 
 export const ProductCard = ({ product, onAddToCart }: ProductCardProps) => {
   const [isLoading, setIsLoading] = useState(false);
-  const { items, updateQuantity } = useCart();
+  const { items, updateQuantity } = useUnifiedCart();
   const { isInWishlist, addToWishlist, removeFromWishlist } = useWishlist();
   const liked = isInWishlist(product.id);
 

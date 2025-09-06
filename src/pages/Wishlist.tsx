@@ -1,5 +1,5 @@
 import { useWishlist } from '@/hooks/useWishlist';
-import { useCart } from '@/hooks/useCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Heart, ShoppingCart, Trash2 } from 'lucide-react';
@@ -7,7 +7,7 @@ import { Link } from 'react-router-dom';
 
 const Wishlist = () => {
   const { items, removeFromWishlist, clearWishlist } = useWishlist();
-  const { addToCart } = useCart();
+  const { addToCart } = useUnifiedCart();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary/10 to-background flex flex-col items-center py-12 px-4">

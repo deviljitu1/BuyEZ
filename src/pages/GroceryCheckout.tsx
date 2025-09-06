@@ -7,7 +7,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { useGroceryCart } from '@/hooks/useGroceryCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 import { useGroceryProducts } from '@/hooks/useGroceryProducts';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -22,7 +22,7 @@ interface DeliveryAddress {
 export default function GroceryCheckout() {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { cartItems, addToCart, removeFromCart, clearCart, user } = useGroceryCart();
+  const { cartItems, addToCart, removeFromCart, clearCart, user } = useUnifiedCart();
   const { products } = useGroceryProducts();
   const [loading, setLoading] = useState(false);
   const [deliveryAddress, setDeliveryAddress] = useState<DeliveryAddress>({
@@ -201,9 +201,25 @@ export default function GroceryCheckout() {
                       size="sm"
                       variant="outline"
                       className="h-6 w-6 p-0"
-                      onClick={() => addToCart(item.product_id)}
-                    >
-                      <Plus className="h-3 w-3" />
+                       onClick={() => {
+                         const product = products.find(p => p.id === item.product_id);
+                         if (product) {
+                           const productObj = {
+                             id: product.id,
+                             name: product.name,
+                             price: Number(product.price),
+                             category: product.category_id,
+                             image: product.image_url,
+                             rating: Number(product.rating || 4),
+                             reviews: 0,
+                             originalPrice: Number(product.original_price || product.price),
+                             stock: product.stock || 0
+                           };
+                           addToCart(productObj);
+                         }
+                       }}
+                     >
+                       <Plus className="h-3 w-3" />
                     </Button>
                   </div>
                 </div>

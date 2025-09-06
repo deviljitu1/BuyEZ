@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { Product } from '@/types/product';
+import { mockProducts } from '@/data/mockProducts';
 
 interface CartItem {
   id: string;
@@ -10,11 +11,14 @@ interface CartItem {
   quantity: number;
   created_at: string;
   updated_at: string;
-  product?: Product;
+}
+
+interface CartItemWithProduct extends CartItem {
+  product: Product;
 }
 
 export const useUnifiedCart = () => {
-  const [cartItems, setCartItems] = useState<CartItem[]>([]);
+  const [cartItems, setCartItems] = useState<CartItemWithProduct[]>([]);
   const [loading, setLoading] = useState(false);
   const [user, setUser] = useState<any>(null);
 
@@ -53,7 +57,7 @@ export const useUnifiedCart = () => {
     try {
       const savedCart = localStorage.getItem('shopez-unified-cart');
       if (savedCart) {
-        const localItems = JSON.parse(savedCart);
+        const localItems: CartItemWithProduct[] = JSON.parse(savedCart);
         setCartItems(localItems);
       }
     } catch (error) {
@@ -61,7 +65,7 @@ export const useUnifiedCart = () => {
     }
   };
 
-  const saveLocalCart = (items: CartItem[]) => {
+  const saveLocalCart = (items: CartItemWithProduct[]) => {
     try {
       localStorage.setItem('shopez-unified-cart', JSON.stringify(items));
     } catch (error) {
@@ -74,14 +78,24 @@ export const useUnifiedCart = () => {
       setLoading(true);
       const { data, error } = await supabase
         .from('cart_items')
-        .select(`
-          *,
-          product:products(*)
-        `)
+        .select('*')
         .eq('user_id', userId);
 
       if (error) throw error;
-      setCartItems(data || []);
+      
+      // Manually join with product data from mock products
+      const itemsWithProducts: CartItemWithProduct[] = (data || []).map(item => {
+        const product = mockProducts.find(p => p.id === item.product_id);
+        if (product) {
+          return {
+            ...item,
+            product
+          };
+        }
+        return null;
+      }).filter(Boolean) as CartItemWithProduct[];
+
+      setCartItems(itemsWithProducts);
     } catch (error) {
       console.error('Error fetching cart:', error);
       toast({
@@ -99,7 +113,7 @@ export const useUnifiedCart = () => {
       if (!user) {
         // Handle anonymous user with localStorage
         const existingItem = cartItems.find(item => item.product_id === product.id);
-        let updatedItems;
+        let updatedItems: CartItemWithProduct[];
 
         if (existingItem) {
           updatedItems = cartItems.map(item =>
@@ -108,7 +122,7 @@ export const useUnifiedCart = () => {
               : item
           );
         } else {
-          const newItem: CartItem = {
+          const newItem: CartItemWithProduct = {
             id: `local-${Date.now()}`,
             user_id: 'anonymous',
             product_id: product.id,
@@ -302,7 +316,7 @@ export const useUnifiedCart = () => {
 
   // Convert cart items to the format expected by existing components
   const items = cartItems.map(item => ({
-    ...item.product!,
+    ...item.product,
     quantity: item.quantity,
     id: item.product_id
   }));

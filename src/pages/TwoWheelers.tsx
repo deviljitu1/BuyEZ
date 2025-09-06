@@ -4,7 +4,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { useSupabaseCart } from '@/hooks/useSupabaseCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 import { useCategories } from '@/hooks/useCategories';
 import { useTwoWheelers } from '@/hooks/useTwoWheelers';
 
@@ -26,7 +26,7 @@ export default function TwoWheelers() {
   
   const { categories, loading: categoriesLoading } = useCategories();
   const { products, loading: productsLoading } = useTwoWheelers(selectedCategory);
-  const { addToCart, user } = useSupabaseCart();
+  const { addToCart, user } = useUnifiedCart();
 
   // Filter products based on search and price range
   const filteredProducts = products.filter(product => {

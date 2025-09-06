@@ -1,8 +1,8 @@
-import { useCart } from '@/hooks/useCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 import { useNavigate } from 'react-router-dom';
 
 const OrderConfirm = () => {
-  const { items, getCartTotal, clearCart } = useCart();
+  const { items, getCartTotal, clearCart } = useUnifiedCart();
   const navigate = useNavigate();
 
   // Optionally clear cart on mount

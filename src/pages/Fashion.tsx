@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Star, Filter, SlidersHorizontal, TrendingUp, Sparkles } from 'lucide-react';
-import { useCart } from '@/hooks/useCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 
 // Mock fashion products data
 const fashionProducts = {
@@ -191,7 +191,7 @@ const Fashion = () => {
   const [activeTab, setActiveTab] = useState('all');
   const [sortBy, setSortBy] = useState('popular');
   const [priceFilter, setPriceFilter] = useState('all');
-  const { addToCart } = useCart();
+  const { addToCart } = useUnifiedCart();
 
   // Handle hash navigation
   useEffect(() => {

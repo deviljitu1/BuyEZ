@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { useNavigate } from 'react-router-dom';
 import { useGroceryCategories } from '@/hooks/useGroceryCategories';
 import { useGroceryProducts } from '@/hooks/useGroceryProducts';
-import { useGroceryCart } from '@/hooks/useGroceryCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 import { supabase } from '@/integrations/supabase/client';
 
 const bannerOffers = [
@@ -38,32 +38,18 @@ export default function Grocery() {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-  const [currentUser, setCurrentUser] = useState<any>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
   
   const navigate = useNavigate();
   const { categories, loading: categoriesLoading } = useGroceryCategories();
   const { products, loading: productsLoading } = useGroceryProducts();
-  const { addToCart, removeFromCart, getCartItemQuantity, totalItems, user } = useGroceryCart();
+  const { addToCart, removeFromCart, getCartItemQuantity, totalItems, user } = useUnifiedCart();
 
   useEffect(() => {
-    checkUser();
-  }, []);
-
-  const checkUser = async () => {
-    const { data: { user } } = await supabase.auth.getUser();
-    setCurrentUser(user);
-    
-    if (user) {
-      const { data: profile } = await supabase
-        .from('profiles')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-      
-      setIsAdmin(profile?.role === 'admin');
+    if (!user) {
+      setShowAuthDialog(true);
     }
-  };
+  }, [user]);
 
   const handleAuth = () => {
     navigate('/auth');
@@ -71,7 +57,6 @@ export default function Grocery() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut();
-    setCurrentUser(null);
   };
 
   const filteredProducts = products.filter(product => {
@@ -124,19 +109,11 @@ export default function Grocery() {
               </Button>
               
               {/* Auth Button */}
-              {currentUser ? (
-                <div className="flex items-center gap-2">
-                  {/* Check if user is admin and show admin link */}
-                  {isAdmin && (
-                    <Button variant="outline" size="sm" asChild>
-                      <a href="/admin">Admin</a>
-                    </Button>
-                  )}
-                  <Button variant="outline" size="sm" onClick={handleLogout}>
-                    <User className="h-4 w-4 mr-2" />
-                    Logout
-                  </Button>
-                </div>
+              {user ? (
+                <Button variant="outline" size="sm" onClick={handleLogout}>
+                  <User className="h-4 w-4 mr-2" />
+                  Logout
+                </Button>
               ) : (
                 <Button variant="outline" size="sm" onClick={handleAuth}>
                   <User className="h-4 w-4 mr-2" />
@@ -312,7 +289,20 @@ export default function Grocery() {
                             size="sm"
                             variant="ghost"
                             className="h-6 w-6 p-0 text-primary-foreground hover:text-primary-foreground hover:bg-primary-glow"
-                            onClick={() => addToCart(product.id)}
+                            onClick={() => {
+                              const productObj = {
+                                id: product.id,
+                                name: product.name,
+                                price: Number(product.price),
+                                category: product.category_id,
+                                image: product.image_url,
+                                rating: Number(product.rating || 4),
+                                reviews: 0,
+                                originalPrice: Number(product.original_price || product.price),
+                                stock: product.stock || 0
+                              };
+                              addToCart(productObj);
+                            }}
                           >
                             <Plus className="h-3 w-3" />
                           </Button>
@@ -320,7 +310,20 @@ export default function Grocery() {
                       ) : (
                         <Button
                           size="sm"
-                          onClick={() => addToCart(product.id)}
+          onClick={() => {
+            const productObj = {
+              id: product.id,
+              name: product.name,
+              price: Number(product.price),
+              category: product.category_id,
+              image: product.image_url,
+              rating: Number(product.rating || 4),
+              reviews: 0,
+              originalPrice: Number(product.original_price || product.price),
+              stock: product.stock || 0
+            };
+            addToCart(productObj);
+          }}
                           className="h-7 px-3 text-xs"
                         >
                           ADD

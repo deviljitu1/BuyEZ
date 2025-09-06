@@ -4,7 +4,7 @@ import { mockProducts } from '@/data/mockProducts';
 import { Star, ShoppingCart, ArrowLeft, X } from 'lucide-react';
 import { ProductGrid } from '@/components/ProductGrid';
 import { Product } from '@/types/product';
-import { useCart } from '@/hooks/useCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 type ProductDetailProps = {
   addToCart: (product: Product) => void;
 };
@@ -12,7 +12,7 @@ type ProductDetailProps = {
 const ProductDetail = ({ addToCart }: ProductDetailProps) => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { items, updateQuantity } = useCart();
+  const { items, updateQuantity } = useUnifiedCart();
   const [zoomed, setZoomed] = useState(false);
   const [pincode, setPincode] = useState('');
   const [enteredPincode, setEnteredPincode] = useState('');

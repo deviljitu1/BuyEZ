@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useCart } from '@/hooks/useCart';
+import { useUnifiedCart } from '@/hooks/useUnifiedCart';
 import { useNavigate } from 'react-router-dom';
 
 const steps = [
@@ -11,7 +11,7 @@ const steps = [
 
 const Checkout = () => {
   const [step, setStep] = useState(0);
-  const { items, getCartTotal } = useCart();
+  const { items, getCartTotal } = useUnifiedCart();
   const navigate = useNavigate();
   // Coupon state
   const [coupon, setCoupon] = useState('');
