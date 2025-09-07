@@ -28,7 +28,7 @@ export default function Auth() {
     const checkUser = async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        navigate('/two-wheelers');
+        navigate('/');
       }
     };
     checkUser();
@@ -80,13 +80,13 @@ export default function Auth() {
           description: "You have successfully logged in.",
         });
         
-        navigate('/two-wheelers');
+        navigate('/');
       } else {
         const { error } = await supabase.auth.signUp({
           email: formData.email,
           password: formData.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/two-wheelers`,
+            emailRedirectTo: `${window.location.origin}/`,
             data: {
               full_name: formData.fullName,
               phone: formData.phone,
@@ -129,7 +129,7 @@ export default function Auth() {
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
-          redirectTo: `${window.location.origin}/two-wheelers`,
+          redirectTo: `${window.location.origin}/`,
         },
       });
       
@@ -311,9 +311,10 @@ export default function Auth() {
           
           {isLogin && (
             <div className="mt-4 p-4 bg-muted rounded-lg">
-              <p className="text-sm font-medium mb-2">Demo Credentials:</p>
-              <p className="text-sm text-muted-foreground">Email: demo@example.com</p>
-              <p className="text-sm text-muted-foreground">Password: demo123</p>
+              <p className="text-sm font-medium mb-2">Admin Access:</p>
+              <p className="text-sm text-muted-foreground">Create account with: admin@shopez.com</p>
+              <p className="text-sm text-muted-foreground">Password: admin123</p>
+              <p className="text-xs text-muted-foreground mt-2">This email gets admin role automatically</p>
             </div>
           )}
         </CardContent>
