@@ -327,18 +327,18 @@ export default function Auth() {
             </p>
           </div>
           
-          {!isLogin && (
-            <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
-              <p className="text-sm font-medium mb-2 text-primary">🔐 Admin Access:</p>
-              <p className="text-sm text-muted-foreground">Use email: <span className="font-mono font-medium">admin@shopez.com</span></p>
-              <p className="text-sm text-muted-foreground">Password: <span className="font-mono font-medium">admin123</span></p>
-              <p className="text-xs text-muted-foreground mt-2">This email automatically gets admin role when you create the account</p>
+          {isLogin && (
+            <div className="mt-4 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-sm font-medium mb-2 text-green-800">✅ Demo Admin Ready!</p>
+              <p className="text-sm text-green-700">Email: <span className="font-mono font-medium">admin@shopez.com</span></p>
+              <p className="text-sm text-green-700">Password: <span className="font-mono font-medium">admin123</span></p>
+              <p className="text-xs text-green-600 mt-2">No email verification needed - ready to use!</p>
             </div>
           )}
-          {isLogin && (
+          {!isLogin && (
             <div className="mt-4 p-4 bg-muted rounded-lg">
-              <p className="text-sm font-medium mb-2">Need Admin Access?</p>
-              <p className="text-sm text-muted-foreground">Switch to "Create Account" and use admin@shopez.com</p>
+              <p className="text-sm font-medium mb-2">Demo Admin Available</p>
+              <p className="text-sm text-muted-foreground">Switch to "Sign In" and use admin@shopez.com</p>
             </div>
           )}
         </CardContent>
