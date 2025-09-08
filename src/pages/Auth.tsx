@@ -309,12 +309,18 @@ export default function Auth() {
             </p>
           </div>
           
+          {!isLogin && (
+            <div className="mt-4 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+              <p className="text-sm font-medium mb-2 text-primary">🔐 Admin Access:</p>
+              <p className="text-sm text-muted-foreground">Use email: <span className="font-mono font-medium">admin@shopez.com</span></p>
+              <p className="text-sm text-muted-foreground">Password: <span className="font-mono font-medium">admin123</span></p>
+              <p className="text-xs text-muted-foreground mt-2">This email automatically gets admin role when you create the account</p>
+            </div>
+          )}
           {isLogin && (
             <div className="mt-4 p-4 bg-muted rounded-lg">
-              <p className="text-sm font-medium mb-2">Admin Access:</p>
-              <p className="text-sm text-muted-foreground">Create account with: admin@shopez.com</p>
-              <p className="text-sm text-muted-foreground">Password: admin123</p>
-              <p className="text-xs text-muted-foreground mt-2">This email gets admin role automatically</p>
+              <p className="text-sm font-medium mb-2">Need Admin Access?</p>
+              <p className="text-sm text-muted-foreground">Switch to "Create Account" and use admin@shopez.com</p>
             </div>
           )}
         </CardContent>
