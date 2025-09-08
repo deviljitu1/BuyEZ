@@ -98,16 +98,34 @@ export default function Auth() {
         
         toast({
           title: "Account created!",
-          description: "Please check your email to verify your account.",
+          description: "Account created successfully! You can now sign in.",
         });
         
+        // Auto-switch to login mode
         setIsLogin(true);
       }
     } catch (error: any) {
       console.error('Auth error:', error);
+      
+      let errorMessage = "Something went wrong. Please try again.";
+      let errorTitle = "Authentication Error";
+      
+      if (error.message === "Email not confirmed") {
+        errorTitle = "Email Confirmation Required";
+        errorMessage = "Please check your email and click the confirmation link before signing in.";
+      } else if (error.message === "Invalid login credentials") {
+        if (isLogin) {
+          errorMessage = "Invalid email or password. Make sure you've confirmed your email first.";
+        } else {
+          errorMessage = "This email is already registered. Try signing in instead.";
+        }
+      } else {
+        errorMessage = error.message || errorMessage;
+      }
+      
       toast({
-        title: "Authentication Error",
-        description: error.message || "Something went wrong. Please try again.",
+        title: errorTitle,
+        description: errorMessage,
         variant: "destructive",
       });
     } finally {
