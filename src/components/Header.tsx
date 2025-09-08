@@ -442,9 +442,15 @@ export const Header = ({ cartCount, onCartClick }: HeaderProps) => {
                   width: '16rem'
                 }}
               >
-                <div className="flex items-center justify-between px-4 py-3 border-b">
-                  <span className="font-medium text-base">New customer?</span>
-                  <NavLink to="/signup" className="text-primary font-semibold hover:underline">Sign Up</NavLink>
+                <div className="px-4 py-3 border-b space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-base">New customer?</span>
+                    <NavLink to="/signup" className="text-primary font-semibold hover:underline">Sign Up</NavLink>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium text-base">Login as Seller</span>
+                    <NavLink to="/auth" className="text-primary font-semibold hover:underline">Seller Login</NavLink>
+                  </div>
                 </div>
                  <div className="py-2">
                    {isAdmin && (
